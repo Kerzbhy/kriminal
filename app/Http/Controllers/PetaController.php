@@ -11,7 +11,7 @@ class PetaController extends Controller
             'title' => 'Peta',
             'menuPeta' => 'active'
         );
-        
-        return view('admin/peta/index',$data);
+
+        return view('admin/peta/index', $data);
     }
 }
