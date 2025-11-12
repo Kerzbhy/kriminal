@@ -12,6 +12,6 @@ class PrioritasController extends Controller
             'menuPrioritas' => 'active'
         );
 
-        return view('admin/prioritas/index', $data);
+        return view('admin/prioritas/prioritas', $data);
     }
 }

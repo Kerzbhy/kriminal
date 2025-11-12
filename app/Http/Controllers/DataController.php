@@ -15,7 +15,7 @@ class DataController extends Controller
             'data_kriminal' => Data::all(),
         ];
 
-        return view('admin.data.index', $data);
+        return view('admin.data.data', $data);
     }
 
     public function create()
@@ -43,7 +43,7 @@ class DataController extends Controller
 
         Data::create($request->all());
 
-        return redirect()->route('data.index')->with('success', 'Data berhasil ditambahkan!');
+        return redirect()->route('data.data')->with('success', 'Data berhasil ditambahkan!');
     }
 
     public function edit($id)
@@ -67,7 +67,7 @@ class DataController extends Controller
         $data = Data::findOrFail($id);
         $data->update($request->all());
 
-        return redirect()->route('data.index')->with('success', 'Data berhasil diperbarui!');
+        return redirect()->route('data.data')->with('success', 'Data berhasil diperbarui!');
     }
 
         public function destroy($id)
@@ -75,7 +75,7 @@ class DataController extends Controller
         $data = Data::findOrFail($id);
         $data->delete();
 
-        return redirect()->route('data.index')->with('success', 'Data berhasil dihapus.');
+        return redirect()->route('data.data')->with('success', 'Data berhasil dihapus.');
     }
 
 }

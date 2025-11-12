@@ -30,6 +30,24 @@
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
 
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<!-- File JS Lokal -->
+<script src="{{ asset('admin2/assets/js/map.js') }}"></script>
+
+<script>
+    setInterval(() => {
+        fetch('/check-sync-token', { credentials: 'same-origin' })
+            .then(res => res.json())
+            .then(data => {
+                if (!data.valid) {
+                    // redirect ke logout otomatis jika token hilang
+                    window.location.href = '/logout';
+                }
+            });
+    }, 5000); // cek tiap 5 detik
+</script>
 
 
 @session('success')
@@ -74,7 +92,7 @@
     });
 </script>
 
-@yield('scripts')
+
 </body>
 
 </html>{}

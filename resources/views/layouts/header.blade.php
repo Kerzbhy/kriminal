@@ -19,7 +19,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="apple-touch-icon" sizes="76x76" href="{{ asset('admin2/assets/img/polisi.png') }}">
-    <link rel="icon" type="image/png" href="{{ asset('admin2/assets/img/favicon.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('admin2/assets/img/pol.png') }}">
     <title>
         Sistem Pengelompokkan Kriminalitas
     </title>
@@ -38,4 +38,8 @@
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
     <!-- CSS Files -->
     <link id="pagestyle" href="{{ asset('admin2/assets/css/material-dashboard.css?v=3.2.0') }}" rel="stylesheet" />
+     <!-- Custom CSS -->
+    <link href="{{ asset('admin2/assets/css/peta.css') }}" rel="stylesheet">
+    <!-- Contoh tambahan CSS langsung -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>

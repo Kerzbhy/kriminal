@@ -6,14 +6,12 @@ use Illuminate\Http\Request;
 
 class ClusterController extends Controller
 {
-      public function index(){
-
-        
+    public function index(){
         $data = array(
             'title' => 'Clustering',
             'menuCluster' => 'active',
         );
         
-        return view('admin/cluster/index',$data);
+        return view('admin/cluster/cluster',$data);
     }
 }

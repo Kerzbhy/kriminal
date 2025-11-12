@@ -6,9 +6,9 @@
     <div class="container-fluid py-2">
         <div class="row">
             <div class="ms-3">
-                <h3 class="mb-0 h4 font-weight-bolder">Peta</h3>
-                <p class="mb-4">
-                    Menampilkan Visual Geografis
+                <h3 class="mb-0 h4 font-weight-bolder">Clustering</h3>
+                <p class="mb-4"> 
+                    Mengelompokkan Data Kriminal
                 </p>
             </div>
             <div class="col-12">

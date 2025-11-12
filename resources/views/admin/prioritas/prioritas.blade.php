@@ -1,14 +1,14 @@
 @extends('layouts.app')
 
-@section('page-title', 'Clustering')
+@section('page-title', 'Prioritas')
 
 @section('content')
     <div class="container-fluid py-2">
         <div class="row">
             <div class="ms-3">
-                <h3 class="mb-0 h4 font-weight-bolder">Clustering</h3>
+                <h3 class="mb-0 h4 font-weight-bolder">Prioritas</h3>
                 <p class="mb-4">
-                    Check the sales, value and bounce rate by country.
+                    Menghitung Hasil Peringkat Kerawanan Daerah
                 </p>
             </div>
             <div class="col-12">
