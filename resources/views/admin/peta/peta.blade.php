@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('page-title', 'Peta')
-
+ 
 @section('content')
     <div class="container-fluid py-2">
         <div class="row">
