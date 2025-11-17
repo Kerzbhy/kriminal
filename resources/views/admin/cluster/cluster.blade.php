@@ -7,25 +7,52 @@
         <div class="row">
             <div class="ms-3">
                 <h3 class="mb-0 h4 font-weight-bolder">Clustering</h3>
-                <p class="mb-4"> 
-                    Mengelompokkan Data Kriminal
+                <p class="mb-4">
+                    Mengelompokkan Data Kriminal menggunakan DBSCAN
                 </p>
             </div>
             <div class="col-12">
                 <div class="card shadow">
+
+                    {{-- ========================================================== --}}
+                    {{-- PERUBAHAN UTAMA UNTUK TOMBOL RESET ADA DI SINI --}}
+                    {{-- ========================================================== --}}
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h6 class="mb-0 font-weight-bold">Hasil Clustering</h6>
-                        <button type="button" class="btn btn-sm btn-info d-flex align-items-center" data-toggle="modal"
-                            data-target="#modalTambah">
-                            <i class="fas fa-spinner me-2"></i>
-                            Proses
-                        </button>
+                        <div>
+                            {{-- Tombol "Proses" atau "Proses Ulang" (sintaks BS4) --}}
+                            <button type="button" class="btn btn-sm btn-info" data-toggle="modal"
+                                data-target="#modalProses">
+                                <i class="fas fa-spinner me-2"></i>
+                                {{ isset($hasilClusterTabel) ? 'Proses Ulang' : 'Proses' }}
+                            </button>
+
+                            {{-- Tombol "Reset" yang hanya muncul jika ada hasil --}}
+                            @isset($hasilClusterTabel)
+                                <a href="{{ route('cluster.reset') }}" class="btn btn-sm btn-danger">
+                                    <i class="fas fa-trash-alt me-2"></i>
+                                    Reset Hasil
+                                </a>
+                            @endisset
+                        </div>
                     </div>
+                    {{-- ========================================================== --}}
 
                     <div class="card-body">
+                        {{-- Notifikasi untuk pesan dari session (success, error) & validasi --}}
+                        @if(session('success'))
+                        <div class="alert alert-success">{{ session('success') }}</div> @endif
+                        @if(session('error'))
+                        <div class="alert alert-danger">{{ session('error') }}</div> @endif
+                        @if($errors->any())
+                            <div class="alert alert-danger">
+                                <ul> @foreach ($errors->all() as $error) <li>{{ $error }}</li> @endforeach </ul>
+                            </div>
+                        @endif
+
                         <div class="table-responsive">
                             <table class="table table-bordered table-striped table-hover" id="dataTable">
-                                <thead class="thead-dark text-center">
+                                <thead class="text-center"> {{-- Menghapus thead-dark untuk tema terang standar --}}
                                     <tr>
                                         <th>No</th>
                                         <th>Nama Wilayah</th>
@@ -33,66 +60,81 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {{-- Contoh data dummy --}}
-                                    <tr>
-                                        <td>1</td>
-                                        <td>Mandonga</td>
-                                        <td><span class="badge bg-success">C1</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td>2</td>
-                                        <td>Baruga</td>
-                                        <td><span class="badge bg-warning">C2</span></td>
-                                    </tr>
-                                                                        <tr>
-                                        <td>3</td>
-                                        <td>Abeli</td>
-                                        <td><span class="badge bg-danger">C3</span></td>
-                                    </tr>
-                                    {{-- Data clustering akan ditampilkan secara dinamis di sini --}}
+                                    @isset($hasilClusterTabel)
+                                        {{-- Gunakan logika pengurutan dari controller --}}
+                                        @forelse ($hasilClusterTabel as $item)
+                                            <tr>
+                                                <td>{{ $loop->iteration }}</td>
+                                                <td>{{ $item['lokasi'] }}</td>
+                                                <td class="text-center">
+                                                    @if($item['cluster'] == -1)
+                                                        <span class="badge bg-secondary">NOISE</span>
+                                                    @else
+                                                        {{-- Logika warna badge dinamis --}}
+                                                        @php
+                                                            $colors = ['success', 'primary', 'info', 'warning', 'danger'];
+                                                            $color = $colors[$item['cluster'] % count($colors)];
+                                                        @endphp
+                                                        <span class="badge bg-{{ $color }}">C{{ $item['cluster'] + 1 }}</span>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="3" class="text-center">Hasil clustering tidak menemukan cluster apa pun
+                                                    (semua data dianggap noise). Coba ubah parameter.</td>
+                                            </tr>
+                                        @endforelse
+                                    @else
+                                        <tr>
+                                            <td colspan="3" class="text-center">Silakan klik tombol "Proses" untuk memulai
+                                                clustering.</td>
+                                        </tr>
+                                    @endisset
                                 </tbody>
                             </table>
                         </div>
                     </div>
                 </div>
-                <div class="card mt-4 shadow">
-                    <div class="card-header">
-                        <h6 class="mb-0 font-weight-bold">Visualisasi Clustering</h6>
-                    </div>
-                    <div class="card-body">
-                        <canvas id="chartClustering" width="100%" height="40"></canvas>
-                    </div>
-                </div>
 
+                @isset($hasilClusterChart)
+                    <div class="card mt-4 shadow">
+                        <div class="card-header">
+                            <h6 class="mb-0 font-weight-bold">Visualisasi Clustering</h6>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="chartClustering" height="400"></canvas>
+                        </div>
+                    </div>
+                @endisset
             </div>
         </div>
     </div>
 
-    {{-- Modal Proses Clustering --}}
-    <div class="modal fade" id="modalTambah" tabindex="-1" role="dialog" aria-labelledby="modalTambahLabel"
+    {{-- Modal Proses Clustering (dengan sintaks BS4) --}}
+    <div class="modal fade" id="modalProses" tabindex="-1" role="dialog" aria-labelledby="modalProsesLabel"
         aria-hidden="true">
         <div class="modal-dialog modal-md modal-dialog-centered" role="document">
             <div class="modal-content">
-                <form action="#" method="POST">
+                <form action="{{ route('cluster.proses') }}" method="POST">
                     @csrf
                     <div class="modal-header">
-                        <h5 class="modal-title">Proses Clustering</h5>
+                        <h5 class="modal-title">Parameter Proses Clustering</h5>
                     </div>
-
                     <div class="modal-body">
-                        {{-- Bisa tambahkan parameter DBSCAN seperti eps dan minPts jika diperlukan --}}
-                        <div class="form-group">
+                        <div class="form-group mb-3">
                             <label for="eps">Nilai Epsilon (eps)</label>
-                            <input type="number" step="0.01" class="form-control" name="eps" placeholder="Contoh: 0.5"
-                                required>
+                            <input type="number" step="0.1" class="form-control" name="eps" value="{{ old('eps') }}"
+                                placeholder="Contoh: 0.5" required>
                         </div>
                         <div class="form-group">
-                            <label for="minPts">Minimum Points (minPts)</label>
-                            <input type="number" class="form-control" name="minPts" placeholder="Contoh: 3" required>
+                            <label for="min_samples">Minimum Points</label>
+                            <input type="number" class="form-control" name="min_samples" value="{{ old('min_samples') }}"
+                                placeholder="Contoh: 2" required>
                         </div>
                     </div>
-
                     <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
                         <button type="submit" class="btn btn-info">Proses</button>
                     </div>
                 </form>
@@ -102,64 +144,72 @@
 @endsection
 
 @section('scripts')
+    {{-- Memuat pustaka Chart.js --}}
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        const ctx = document.getElementById('chartClustering').getContext('2d');
+        // Pastikan script hanya berjalan jika controller mengirimkan data hasil
+        @isset($hasilClusterChart)
 
-        const data = {
-            datasets: [
-                {
-                    label: 'Cluster 1',
-                    data: [
-                        { x: 122.5153, y: -3.9982 },
-                        { x: 122.5171, y: -3.9990 }
-                    ],
-                    backgroundColor: 'rgba(75, 192, 192, 0.7)'
-                },
-                {
-                    label: 'Cluster 2',
-                    data: [
-                        { x: 122.5245, y: -4.0123 },
-                        { x: 122.5260, y: -4.0130 }
-                    ],
-                    backgroundColor: 'rgba(255, 205, 86, 0.7)'
-                },
-                {
-                    label: 'Noise',
-                    data: [
-                        { x: 122.5300, y: -4.0050 }
-                    ],
-                    backgroundColor: 'rgba(128, 128, 128, 0.7)'
-                }
-            ]
-        };
+            // Bungkus semua logika Chart.js di dalam 'DOMContentLoaded'
+            // Ini untuk memastikan elemen <canvas> sudah ada di halaman sebelum script ini dijalankan
+            document.addEventListener('DOMContentLoaded', function () {
 
-        const config = {
-            type: 'scatter',
-            data: data,
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: { position: 'bottom' },
-                    tooltip: {
-                        callbacks: {
-                            label: function (context) {
-                                return `(${context.raw.x.toFixed(4)}, ${context.raw.y.toFixed(4)})`;
+                // Ambil elemen canvas
+                const ctx = document.getElementById('chartClustering');
+
+                // Cek sekali lagi jika elemennya benar-benar ada
+                if (ctx) {
+                    const data = {
+                        datasets: @json($hasilClusterChart)
+                    };
+
+                    const config = {
+                        type: 'scatter',
+                        data: data,
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false, // Tambahan: Agar tinggi canvas fleksibel
+                            plugins: {
+                                legend: {
+                                    position: 'bottom'
+                                },
+                                // Tambahan: Tooltip yang lebih informatif
+                                tooltip: {
+                                    callbacks: {
+                                        label: function (context) {
+                                            let label = context.dataset.label || '';
+                                            if (label) {
+                                                label += ': ';
+                                            }
+                                            if (context.parsed.y !== null && context.parsed.x !== null) {
+                                                label += `(Lat: ${context.parsed.y.toFixed(4)}, Lon: ${context.parsed.x.toFixed(4)})`;
+                                            }
+                                            return label;
+                                        }
+                                    }
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    title: {
+                                        display: true,
+                                        text: 'Longitude'
+                                    }
+                                },
+                                y: {
+                                    title: {
+                                        display: true,
+                                        text: 'Latitude'
+                                    }
+                                }
                             }
                         }
-                    }
-                },
-                scales: {
-                    x: {
-                        title: { display: true, text: 'Longitude' }
-                    },
-                    y: {
-                        title: { display: true, text: 'Latitude' }
-                    }
-                }
-            }
-        };
+                    };
 
-        new Chart(ctx, config);
+                    // Buat grafik baru
+                    new Chart(ctx, config);
+                }
+            });
+        @endisset
     </script>
 @endsection

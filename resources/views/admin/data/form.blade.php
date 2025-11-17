@@ -49,19 +49,19 @@
 <div class="form-group">
     <label for="total_kejadian">Total Kejadian</label>
     <input type="number" class="form-control underline" name="total_kejadian" id="total_kejadian"
-        value="{{ old('total_kejadian', $item->total_kejadian ?? '') }}" required>
+        value="{{ old('total_kejadian', $item->jumlah_kejadian ?? '') }}" required>
 </div>
 
 <div class="form-group">
     <label for="jenis_kejadian">Jenis Kejadian</label>
     <input type="text" class="form-control underline" name="jenis_kejadian" id="jenis_kejadian"
-        value="{{ old('jenis_kejadian', $item->jenis_kejadian ?? '') }}" required>
+        value="{{ old('jenis_kejadian', $item->jenis_kejahatan_dominan ?? '') }}" required>
 </div>
 
 <div class="form-group">
     <label for="avg_kerugian">Avg. Kerugian (juta)</label>
     <input type="number" step="0.01" class="form-control underline" name="avg_kerugian" id="avg_kerugian"
-        value="{{ old('avg_kerugian', $item->avg_kerugian ?? '') }}" required>
+        value="{{ old('avg_kerugian', $item->rata_rata_kerugian_juta ?? '') }}" required>
 </div>
 
 <div class="form-group">

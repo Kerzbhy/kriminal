@@ -44,8 +44,8 @@ class Kernel extends HttpKernel
      * Middleware route individual (opsional)
      */
     protected $routeMiddleware = [
-        'auth' => \App\Http\Middleware\Authenticate::class,
-        'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
+        'checkLogin' => \App\Http\Middleware\checkLogin::class,
+        'isLogin' => \App\Http\Middleware\isLogin::class,
         // tambahkan middleware lain jika perlu
     ];
 }

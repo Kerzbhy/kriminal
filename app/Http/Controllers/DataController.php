@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Data;
+use App\Models\DataKriminal;
 use Illuminate\Http\Request;
 
 class DataController extends Controller
@@ -12,7 +12,7 @@ class DataController extends Controller
         $data = [
             'title' => 'Data Kriminal',
             'menuData' => 'active',
-            'data_kriminal' => Data::all(),
+            'data_kriminal' => DataKriminal::all(),
         ];
 
         return view('admin.data.data', $data);
@@ -41,14 +41,14 @@ class DataController extends Controller
             'jumlah_penduduk' => 'required|integer',
         ]);
 
-        Data::create($request->all());
+        DataKriminal::create($request->all());
 
         return redirect()->route('data.data')->with('success', 'Data berhasil ditambahkan!');
     }
 
     public function edit($id)
     {
-        $data = Data::findOrFail($id);
+        $data = DataKriminal::findOrFail($id);
         return view('admin.data.edit', compact('data'));
     }
 
@@ -64,7 +64,7 @@ class DataController extends Controller
             'jumlah_penduduk' => 'required|integer',
         ]);
 
-        $data = Data::findOrFail($id);
+        $data = DataKriminal::findOrFail($id);
         $data->update($request->all());
 
         return redirect()->route('data.data')->with('success', 'Data berhasil diperbarui!');
@@ -72,7 +72,7 @@ class DataController extends Controller
 
         public function destroy($id)
     {
-        $data = Data::findOrFail($id);
+        $data = DataKriminal::findOrFail($id);
         $data->delete();
 
         return redirect()->route('data.data')->with('success', 'Data berhasil dihapus.');

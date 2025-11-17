@@ -5,18 +5,18 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class Data extends Model
+class DataKriminal extends Model
 {
     use HasFactory;
 
-    protected $table = 'data_kriminals';
+    protected $table = 'data_kriminal';
     protected $fillable = [
         'lokasi',
         'latitude',
         'longitude',
-        'total_kejadian',
-        'jenis_kejadian',
-        'avg_kerugian',
+        'jumlah_kejadian',
+        'jenis_kejahatan',
+        'rata_rata_kerugian_juta',
         'jumlah_penduduk',
     ];
 }

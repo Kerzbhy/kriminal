@@ -41,9 +41,9 @@
                                         <td>{{ $item->lokasi }}</td>
                                         <td>{{ $item->latitude }}</td>
                                         <td>{{ $item->longitude }}</td>
-                                        <td>{{ $item->total_kejadian }}</td>
-                                        <td>{{ $item->jenis_kejadian }}</td>
-                                        <td>{{ $item->avg_kerugian }}</td>
+                                        <td>{{ $item->jumlah_kejadian }}</td>
+                                        <td>{{ $item->jenis_kejahatan_dominan }}</td>
+                                        <td>{{ $item->rata_rata_kerugian_juta }}</td>
                                         <td>{{ $item->jumlah_penduduk }}</td>
                                         <td>
                                             <button class="btn btn-warning btn-sm" data-toggle="modal"

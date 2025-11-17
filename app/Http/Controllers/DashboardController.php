@@ -4,12 +4,13 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
-use App\Models\Data;
+use App\Models\DataKriminal;
+
 
 class DashboardController extends Controller
 {
     public function index(){
-        $totalKejadian = Data::sum('total_kejadian');
+        $totalKejadian = DataKriminal::sum('jumlah_kejadian');
         $data = array(
             "title"             => "Dashboard",
             "menuDashboard"    => "active",

@@ -3,163 +3,247 @@
 @section('page-title', 'Prioritas')
 
 @section('content')
-    <div class="container-fluid py-2">
-        <div class="row">
-            <div class="ms-3">
-                <h3 class="mb-0 h4 font-weight-bolder">Prioritas</h3>
-                <p class="mb-4">
-                    Menghitung Hasil Peringkat Kerawanan Daerah
-                </p>
-            </div>
-            <div class="col-12">
-                <div class="card shadow">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h6 class="mb-0 font-weight-bold">Hasil Clustering</h6>
-                        <button type="button" class="btn btn-sm btn-info d-flex align-items-center" data-toggle="modal"
-                            data-target="#modalTambah">
-                            <i class="fas fa-spinner me-2"></i>
-                            Proses
-                        </button>
-                    </div>
+<div class="container-fluid py-2">
+    <div class="row">
+        <div class="ms-3">
+            <h3 class="mb-0 h4 font-weight-bolder">Prioritas</h3>
+            <p class="mb-4">
+                Menampilkan detail perhitungan peringkat menggunakan metode TOPSIS.
+            </p>
+        </div>
 
+        {{-- Form untuk Input Bobot --}}
+        <div class="col-12 mb-4">
+            <div class="card shadow">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0 font-weight-bold">Input Parameter TOPSIS</h6>
+                </div>
+                <div class="card-body">
+                    <form action="{{ route('prioritas.proses') }}" method="POST"> {{-- Pastikan route ini ada --}}
+                        @csrf
+                        <div class="row">
+                            {{-- Input Bobot Kriteria (sesuaikan dengan kriteria Anda) --}}
+                            <div class="col-md-3 form-group">
+                                <label>Bobot Jml. Laporan (C1)</label>
+                                <input type="number" step="0.01" class="form-control" name="weights[]" placeholder="cth: 0.4" required>
+                            </div>
+                            <div class="col-md-3 form-group">
+                                <label>Bobot Kepadatan (C2)</label>
+                                <input type="number" step="0.01" class="form-control" name="weights[]" placeholder="cth: 0.2" required>
+                            </div>
+                            <div class="col-md-3 form-group">
+                                <label>Bobot Obyek Vital (C3)</label>
+                                <input type="number" step="0.01" class="form-control" name="weights[]" placeholder="cth: 0.2" required>
+                            </div>
+                            <div class="col-md-3 form-group">
+                                <label>Bobot Waktu Respon (C4)</label>
+                                <input type="number" step="0.01" class="form-control" name="weights[]" placeholder="cth: 0.2" required>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            {{-- Input Jenis Kriteria (Impact) --}}
+                             <div class="col-md-3 form-group">
+                                <label>Jenis Kriteria C1</label>
+                                <select class="form-control" name="impacts[]" required>
+                                    <option value="1">Benefit</option>
+                                    <option value="-1">Cost</option>
+                                </select>
+                            </div>
+                           <div class="col-md-3 form-group">
+                                <label>Jenis Kriteria C2</label>
+                                <select class="form-control" name="impacts[]" required>
+                                    <option value="1">Benefit</option>
+                                    <option value="-1">Cost</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 form-group">
+                                <label>Jenis Kriteria C3</label>
+                                <select class="form-control" name="impacts[]" required>
+                                    <option value="1">Benefit</option>
+                                    <option value="-1">Cost</option>
+                                </select>
+                            </div>
+                           <div class="col-md-3 form-group">
+                                <label>Jenis Kriteria C4</label>
+                                <select class="form-control" name="impacts[]" required>
+                                     <option value="-1">Cost</option>
+                                    <option value="1">Benefit</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="text-end mt-3">
+                            <button type="submit" class="btn btn-info">
+                                <i class="fas fa-calculator me-2"></i>
+                                Hitung & Proses
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        {{-- Menampilkan hasil jika ada --}}
+        @if (isset($hasil_topsis))
+            {{-- 1. Matriks Awal --}}
+            <div class="col-md-6 mb-4">
+                <div class="card shadow">
+                    <div class="card-header"><h6 class="mb-0 font-weight-bold">1. Matriks Keputusan (X)</h6></div>
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table class="table table-bordered table-striped table-hover" id="dataTable">
-                                <thead class="thead-dark text-center">
+                            <table class="table table-bordered text-center">
+                                <thead>
                                     <tr>
-                                        <th>No</th>
-                                        <th>Nama Wilayah</th>
-                                        <th>Cluster</th>
+                                        <th>Alternatif</th><th>C1</th><th>C2</th><th>C3</th><th>C4</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {{-- Contoh data dummy --}}
-                                    <tr>
-                                        <td>1</td>
-                                        <td>Mandonga</td>
-                                        <td><span class="badge bg-success">C1</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td>2</td>
-                                        <td>Baruga</td>
-                                        <td><span class="badge bg-warning">C2</span></td>
-                                    </tr>
-                                                                        <tr>
-                                        <td>3</td>
-                                        <td>Abeli</td>
-                                        <td><span class="badge bg-danger">C3</span></td>
-                                    </tr>
-                                    {{-- Data clustering akan ditampilkan secara dinamis di sini --}}
+                                    @foreach ($hasil_topsis['matrix'] as $index => $row)
+                                        <tr>
+                                            <td><strong>{{ $hasil_topsis['alternatives'][$index] ?? 'A'.($index+1) }}</strong></td>
+                                            @foreach ($row as $value) <td>{{ $value }}</td> @endforeach
+                                        </tr>
+                                    @endforeach
                                 </tbody>
                             </table>
                         </div>
                     </div>
                 </div>
-                <div class="card mt-4 shadow">
-                    <div class="card-header">
-                        <h6 class="mb-0 font-weight-bold">Visualisasi Clustering</h6>
-                    </div>
+            </div>
+
+            {{-- 2. Matriks Ternormalisasi --}}
+            <div class="col-md-6 mb-4">
+                 <div class="card shadow">
+                    <div class="card-header"><h6 class="mb-0 font-weight-bold">2. Matriks Ternormalisasi (R)</h6></div>
                     <div class="card-body">
-                        <canvas id="chartClustering" width="100%" height="40"></canvas>
+                        <div class="table-responsive">
+                             <table class="table table-bordered text-center">
+                                <thead>
+                                     <tr>
+                                        <th>Alternatif</th><th>C1</th><th>C2</th><th>C3</th><th>C4</th>
+                                    </tr>
+                                </thead>
+                               <tbody>
+                                     @foreach ($hasil_topsis['normalized_matrix'] as $index => $row)
+                                        <tr>
+                                             <td><strong>{{ $hasil_topsis['alternatives'][$index] ?? 'A'.($index+1) }}</strong></td>
+                                             @foreach ($row as $value) <td>{{ number_format($value, 4) }}</td> @endforeach
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
-
             </div>
-        </div>
-    </div>
 
-    {{-- Modal Proses Clustering --}}
-    <div class="modal fade" id="modalTambah" tabindex="-1" role="dialog" aria-labelledby="modalTambahLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-md modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <form action="#" method="POST">
-                    @csrf
-                    <div class="modal-header">
-                        <h5 class="modal-title">Proses Clustering</h5>
-                    </div>
-
-                    <div class="modal-body">
-                        {{-- Bisa tambahkan parameter DBSCAN seperti eps dan minPts jika diperlukan --}}
-                        <div class="form-group">
-                            <label for="eps">Nilai Epsilon (eps)</label>
-                            <input type="number" step="0.01" class="form-control" name="eps" placeholder="Contoh: 0.5"
-                                required>
-                        </div>
-                        <div class="form-group">
-                            <label for="minPts">Minimum Points (minPts)</label>
-                            <input type="number" class="form-control" name="minPts" placeholder="Contoh: 3" required>
-                        </div>
-                    </div>
-
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-info">Proses</button>
-                    </div>
-                </form>
+            {{-- 3. Matriks Ternormalisasi Terbobot --}}
+             <div class="col-md-6 mb-4">
+                 <div class="card shadow">
+                    <div class="card-header"><h6 class="mb-0 font-weight-bold">3. Matriks Ternormalisasi Terbobot (Y)</h6></div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered text-center">
+                               <thead>
+                                     <tr>
+                                        <th>Alternatif</th><th>C1</th><th>C2</th><th>C3</th><th>C4</th>
+                                    </tr>
+                               </thead>
+                               <tbody>
+                                   @foreach ($hasil_topsis['weighted_matrix'] as $index => $row)
+                                       <tr>
+                                             <td><strong>{{ $hasil_topsis['alternatives'][$index] ?? 'A'.($index+1) }}</strong></td>
+                                             @foreach ($row as $value) <td>{{ number_format($value, 4) }}</td> @endforeach
+                                        </tr>
+                                   @endforeach
+                                </tbody>
+                           </table>
+                       </div>
+                   </div>
+                </div>
             </div>
-        </div>
+
+            {{-- 4. Solusi Ideal Positif & Negatif --}}
+             <div class="col-md-6 mb-4">
+                <div class="card shadow">
+                   <div class="card-header"><h6 class="mb-0 font-weight-bold">4. Solusi Ideal (A+ dan A-)</h6></div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered text-center">
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Ideal Positif (A+)</strong></td>
+                                         @foreach ($hasil_topsis['ideal_positive'] as $value) <td>{{ number_format($value, 4) }}</td> @endforeach
+                                    </tr>
+                                    <tr>
+                                       <td><strong>Ideal Negatif (A-)</strong></td>
+                                        @foreach ($hasil_topsis['ideal_negative'] as $value) <td>{{ number_format($value, 4) }}</td> @endforeach
+                                    </tr>
+                                </tbody>
+                           </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- 5 & 6. Hasil Akhir --}}
+            <div class="col-12 mb-4">
+                <div class="card shadow">
+                   <div class="card-header"><h6 class="mb-0 font-weight-bold">5 & 6. Hasil Akhir (Jarak, Preferensi, dan Peringkat)</h6></div>
+                    <div class="card-body">
+                       <div class="table-responsive">
+                            <table class="table table-bordered table-striped text-center">
+                               <thead class="thead-dark">
+                                    <tr>
+                                        <th>Peringkat</th>
+                                        <th>Alternatif</th>
+                                        <th>Jarak Ideal Positif (D+)</th>
+                                        <th>Jarak Ideal Negatif (D-)</th>
+                                        <th>Nilai Preferensi (V)</th>
+                                   </tr>
+                               </thead>
+                                <tbody>
+                                    @php
+                                        // Gabungkan data untuk diurutkan
+                                        $final_results = [];
+                                        foreach ($hasil_topsis['alternatives'] as $index => $name) {
+                                            $final_results[] = [
+                                                'name' => $name,
+                                                'dist_positive' => $hasil_topsis['dist_positive'][$index],
+                                                'dist_negative' => $hasil_topsis['dist_negative'][$index],
+                                                'score' => $hasil_topsis['scores'][$index]
+                                            ];
+                                        }
+                                        // Urutkan berdasarkan skor tertinggi
+                                        usort($final_results, function ($a, $b) {
+                                            return $b['score'] <=> $a['score'];
+                                        });
+                                    @endphp
+
+                                    @foreach ($final_results as $rank => $result)
+                                        <tr>
+                                            <td><span class="badge bg-{{ $rank == 0 ? 'success' : ($rank == 1 ? 'info' : ($rank == 2 ? 'warning' : 'secondary')) }}">{{ $rank + 1 }}</span></td>
+                                            <td><strong>{{ $result['name'] }}</strong></td>
+                                            <td>{{ number_format($result['dist_positive'], 4) }}</td>
+                                            <td>{{ number_format($result['dist_negative'], 4) }}</td>
+                                            <td><strong>{{ number_format($result['score'], 4) }}</strong></td>
+                                        </tr>
+                                    @endforeach
+                               </tbody>
+                           </table>
+                       </div>
+                   </div>
+               </div>
+            </div>
+        @else
+            <div class="col-12 text-center">
+                <p>Silakan masukkan parameter dan klik tombol "Hitung & Proses" untuk melihat hasil perhitungan.</p>
+            </div>
+        @endif
+
     </div>
+</div>
 @endsection
 
 @section('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        const ctx = document.getElementById('chartClustering').getContext('2d');
-
-        const data = {
-            datasets: [
-                {
-                    label: 'Cluster 1',
-                    data: [
-                        { x: 122.5153, y: -3.9982 },
-                        { x: 122.5171, y: -3.9990 }
-                    ],
-                    backgroundColor: 'rgba(75, 192, 192, 0.7)'
-                },
-                {
-                    label: 'Cluster 2',
-                    data: [
-                        { x: 122.5245, y: -4.0123 },
-                        { x: 122.5260, y: -4.0130 }
-                    ],
-                    backgroundColor: 'rgba(255, 205, 86, 0.7)'
-                },
-                {
-                    label: 'Noise',
-                    data: [
-                        { x: 122.5300, y: -4.0050 }
-                    ],
-                    backgroundColor: 'rgba(128, 128, 128, 0.7)'
-                }
-            ]
-        };
-
-        const config = {
-            type: 'scatter',
-            data: data,
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: { position: 'bottom' },
-                    tooltip: {
-                        callbacks: {
-                            label: function (context) {
-                                return `(${context.raw.x.toFixed(4)}, ${context.raw.y.toFixed(4)})`;
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    x: {
-                        title: { display: true, text: 'Longitude' }
-                    },
-                    y: {
-                        title: { display: true, text: 'Latitude' }
-                    }
-                }
-            }
-        };
-
-        new Chart(ctx, config);
-    </script>
+    {{-- Script tambahan bisa diletakkan di sini jika perlu --}}
 @endsection
