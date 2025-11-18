@@ -82,7 +82,7 @@
                                         @endforelse
                                     @else
                                         <tr>
-                                            <td colspan="3" class="text-center">Silakan klik tombol "Proses" untuk memulai
+                                            <td colspan="4" class="text-center">Silakan klik tombol "Proses" untuk memulai
                                                 clustering.</td>
                                         </tr>
                                     @endisset
