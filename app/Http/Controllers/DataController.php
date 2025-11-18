@@ -13,6 +13,7 @@ class DataController extends Controller
             'title' => 'Data Kriminal',
             'menuData' => 'active',
             'data_kriminal' => DataKriminal::paginate(25),
+            'jumlah_data'     => DataKriminal::count()
         ];
 
         return view('admin.data.data', $data);
@@ -32,18 +33,16 @@ class DataController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'lokasi' => 'required|string',
+            'kecamatan' => 'required|string',
             'latitude' => 'required',
             'longitude' => 'required',
-            'total_kejadian' => 'required|integer',
-            'jenis_kejadian' => 'required|string',
-            'avg_kerugian' => 'required|numeric',
-            'jumlah_penduduk' => 'required|integer',
+            'jenis_kejahatan' => 'required|string',
+            'kerugian_juta' => 'required|numeric',
         ]);
 
         DataKriminal::create($request->all());
 
-        return redirect()->route('data.data')->with('success', 'Data berhasil ditambahkan!');
+        return redirect()->route('data.index')->with('success', 'Data berhasil ditambahkan!');
     }
 
     public function edit($id)
@@ -55,27 +54,26 @@ class DataController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'lokasi' => 'required|string',
+            'kecamatan' => 'required|string',
             'latitude' => 'required',
             'longitude' => 'required',
-            'total_kejadian' => 'required|integer',
-            'jenis_kejadian' => 'required|string',
-            'avg_kerugian' => 'required|numeric',
-            'jumlah_penduduk' => 'required|integer',
+            'jenis_kejahatan' => 'required|string',
+            'kerugian_juta' => 'required|numeric',
+
         ]);
 
         $data = DataKriminal::findOrFail($id);
         $data->update($request->all());
 
-        return redirect()->route('data.data')->with('success', 'Data berhasil diperbarui!');
+        return redirect()->route('data.index')->with('success', 'Data berhasil diperbarui!');
     }
 
-        public function destroy($id)
+    public function destroy($id)
     {
         $data = DataKriminal::findOrFail($id);
         $data->delete();
 
-        return redirect()->route('data.data')->with('success', 'Data berhasil dihapus.');
+        return redirect()->route('data.index')->with('success', 'Data berhasil dihapus.');
     }
 
 }

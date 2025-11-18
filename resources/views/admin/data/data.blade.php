@@ -10,11 +10,17 @@
             <div class="ms-3">
                 <h3 class="mb-0 h4 font-weight-bolder">Data Kriminal</h3>
                 <p class="mb-4">
-                    Check the sales, value and bounce rate by country.
+                    Kelola dan lihat semua data kriminalitas.
                 </p>
             </div>
             <div class="card">
-                <div class="card-header d-flex flex-wrap justify-content-center justify-content-xl-between">
+               <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0 font-weight-bold">
+                        Daftar Data Kriminal
+                        @isset($jumlah_data)
+                            <span class="badge bg-secondary ms-2">{{ $jumlah_data }} Total</span>
+                        @endisset
+                    </h6>
                     <button type="button" class="btn btn-sm btn-info" data-toggle="modal" data-target="#modalTambah">
                         <i class="fas fa-plus me-2"></i>Tambah Data
                     </button>

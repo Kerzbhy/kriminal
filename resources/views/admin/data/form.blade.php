@@ -29,9 +29,9 @@
 </style>
 
 <div class="form-group">
-    <label for="lokasi">Lokasi</label>
-    <input type="text" class="form-control underline" name="lokasi" id="lokasi"
-        value="{{ old('lokasi', $item->lokasi ?? '') }}" required>
+    <label for="kecamatan">Lokasi</label>
+    <input type="text" class="form-control underline" name="kecamatan" id="kecamatan"
+        value="{{ old('kecamatan', $item->kecamatan ?? '') }}" required>
 </div>
 
 <div class="form-group">
@@ -46,26 +46,25 @@
         value="{{ old('longitude', $item->longitude ?? '') }}" required>
 </div>
 
-<div class="form-group">
+<!-- <div class="form-group">
     <label for="total_kejadian">Total Kejadian</label>
     <input type="number" class="form-control underline" name="total_kejadian" id="total_kejadian"
         value="{{ old('total_kejadian', $item->jumlah_kejadian ?? '') }}" required>
+</div> -->
+
+<div class="form-group">
+    <label for="jenis_kejahatan">Jenis Kejahatan</label>
+    <input type="text" class="form-control underline" name="jenis_kejahatan" id="jenis_kejahatan"
+        value="{{ old('jenis_kejahatan', $item->jenis_kejahatan ?? '') }}" required>
 </div>
 
 <div class="form-group">
-    <label for="jenis_kejadian">Jenis Kejadian</label>
-    <input type="text" class="form-control underline" name="jenis_kejadian" id="jenis_kejadian"
-        value="{{ old('jenis_kejadian', $item->jenis_kejahatan_dominan ?? '') }}" required>
-</div>
+    <label for="kerugian_juta">Kerugian (Juta)</label>
+    <input type="number" step="0.01" class="form-control underline" name="kerugian_juta" id="kerugian_juta"
+        value="{{ old('kerugian_juta', $item->kerugian_juta ?? '') }}" required>
 
-<div class="form-group">
-    <label for="avg_kerugian">Avg. Kerugian (juta)</label>
-    <input type="number" step="0.01" class="form-control underline" name="avg_kerugian" id="avg_kerugian"
-        value="{{ old('avg_kerugian', $item->rata_rata_kerugian_juta ?? '') }}" required>
-</div>
-
-<div class="form-group">
+<!-- <div class="form-group">
     <label for="jumlah_penduduk">Jumlah Penduduk</label>
     <input type="number" class="form-control underline" name="jumlah_penduduk" id="jumlah_penduduk"
         value="{{ old('jumlah_penduduk', $item->jumlah_penduduk ?? '') }}" required>
-</div>
+</div> -->

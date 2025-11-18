@@ -74,7 +74,7 @@ class ClusterController extends Controller
         ];
 
         try {
-            $response = Http::timeout(30)->post('http://127.0.0.1:5000/api/dbscan', $dataUntukApi);
+            $response = Http::timeout(30)->post('http://127.0.0.1:5001/api/dbscan', $dataUntukApi);
         } catch (\Exception $e) {
             return redirect()->route('cluster')->with('error', 'Gagal terhubung ke service clustering. Pastikan API Flask aktif.');
         }

@@ -11,12 +11,18 @@ class DataKriminal extends Model
 
     protected $table = 'data_kriminal';
     protected $fillable = [
-        'lokasi',
+        'kecamatan',
         'latitude',
         'longitude',
-        'jumlah_kejadian',
         'jenis_kejahatan',
-        'rata_rata_kerugian_juta',
-        'jumlah_penduduk',
+        'kerugian_juta', 
     ];
+    
+    /**
+     * Menonaktifkan fitur timestamp otomatis (created_at & updated_at) dari Eloquent.
+     * Laravel tidak akan lagi mencoba mengisi kolom-kolom ini saat menyimpan data.
+     *
+     * @var bool
+     */
+    public $timestamps = false; // <-- PERUBAHANNYA ADA DI SINI
 }

@@ -1,7 +1,7 @@
 DROP TABLE IF EXISTS data_kriminal;
 
 CREATE TABLE data_kriminal (
-    id INT PRIMARY KEY,
+    id INT PRIMARY KEY AUTO_INCREMENT,
     kecamatan VARCHAR(255) NOT NULL,
     latitude DECIMAL(9, 6),
     longitude DECIMAL(9, 6),
