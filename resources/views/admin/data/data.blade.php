@@ -88,7 +88,7 @@
                                                             <div class="modal-footer">
                                                                 {{-- Tombol Aksi --}}
                                                                 <button type="button" class="btn btn-secondary"
-                                                                    data-dismiss="modal">Batal</button>
+                                                                    data-bs-dismiss="modal">Batal</button>
                                                                 <button type="submit" class="btn btn-danger">Ya, Hapus</button>
                                                             </div>
                                                         </form>
