@@ -1,32 +1,3 @@
-<style>
-    .form-group {
-        padding-bottom: 1rem;
-        margin-bottom: 1.25rem;
-        border-bottom: 1px solid #ddd;
-    }
-
-    .form-group label {
-        font-weight: 600;
-        display: block;
-        margin-bottom: 0.5rem;
-    }
-
-    .form-control.underline {
-        border: none;
-        border-bottom: 2px solid #ccc;
-        border-radius: 0;
-        outline: none;
-        box-shadow: none;
-        padding-left: 0;
-        background-color: transparent;
-        transition: border-color 0.3s ease-in-out;
-    }
-
-    .form-control.underline:focus {
-        border-bottom: 2px solid #3b82f6;
-        background-color: transparent;
-    }
-</style>
 
 <div class="form-group">
     <label for="kecamatan">Lokasi</label>
@@ -68,3 +39,33 @@
     <input type="number" class="form-control underline" name="jumlah_penduduk" id="jumlah_penduduk"
         value="{{ old('jumlah_penduduk', $item->jumlah_penduduk ?? '') }}" required>
 </div> -->
+
+<style>
+    .form-group {
+        padding-bottom: 1rem;
+        margin-bottom: 1.25rem;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .form-group label {
+        font-weight: 600;
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-control.underline {
+        border: none;
+        border-bottom: 2px solid #ccc;
+        border-radius: 0;
+        outline: none;
+        box-shadow: none;
+        padding-left: 0;
+        background-color: transparent;
+        transition: border-color 0.3s ease-in-out;
+    }
+
+    .form-control.underline:focus {
+        border-bottom: 2px solid #3b82f6;
+        background-color: transparent;
+    }
+</style>

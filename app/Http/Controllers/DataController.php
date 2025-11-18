@@ -29,7 +29,6 @@ class DataController extends Controller
         return view('admin.data.create', $data);
     }
 
-
     public function store(Request $request)
     {
         $request->validate([

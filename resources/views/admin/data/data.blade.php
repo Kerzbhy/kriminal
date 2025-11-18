@@ -14,14 +14,14 @@
                 </p>
             </div>
             <div class="card">
-               <div class="card-header d-flex justify-content-between align-items-center">
+                <div class="card-header d-flex justify-content-between align-items-center">
                     <h6 class="mb-0 font-weight-bold">
                         Daftar Data Kriminal
                         @isset($jumlah_data)
                             <span class="badge bg-secondary ms-2">{{ $jumlah_data }} Total</span>
                         @endisset
                     </h6>
-                    <button type="button" class="btn btn-sm btn-info" data-toggle="modal" data-target="#modalTambah">
+                    <button type="button" class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#modalTambah">
                         <i class="fas fa-plus me-2"></i>Tambah Data
                     </button>
                 </div>
@@ -41,6 +41,7 @@
                             </thead>
                             <tbody>
                                 @forelse ($data_kriminal as $item)
+                                @include('admin.data.edit', ['item' => $item])
                                     <tr class="text-center">
                                         <td>{{ $item->kecamatan }}</td>
                                         <td>{{ $item->latitude }}</td>
@@ -48,13 +49,14 @@
                                         <td>{{ $item->jenis_kejahatan }}</td>
                                         <td>{{ $item->kerugian_juta }}</td>
                                         <td>
-                                            <button class="btn btn-warning btn-sm" data-toggle="modal"
-                                                data-target="#editModal{{ $item->id }}">
+                                            <button class="btn btn-warning btn-sm" data-bs-toggle="modal"
+                                                data-bs-target="#modalEdit{{ $item->id }}">
                                                 <i class="fas fa-edit"></i>
                                             </button>
+
                                             <!-- Tombol hapus membuka modal -->
-                                            <button type="button" class="btn btn-danger btn-sm" data-toggle="modal"
-                                                data-target="#hapusModal{{ $item->id }}">
+                                            <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal"
+                                                data-bs-target="#hapusModal{{ $item->id }}">
                                                 <i class="fas fa-trash"></i>
                                             </button>
 
