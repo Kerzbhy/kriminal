@@ -10,7 +10,7 @@ use App\Models\DataKriminal;
 class DashboardController extends Controller
 {
     public function index(){
-        $totalKejadian = DataKriminal::sum('jumlah_kejadian');
+        $totalKejadian = DataKriminal::count();
         $data = array(
             "title"             => "Dashboard",
             "menuDashboard"    => "active",

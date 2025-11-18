@@ -14,20 +14,14 @@
             <div class="col-12">
                 <div class="card shadow">
 
-                    {{-- ========================================================== --}}
-                    {{-- PERUBAHAN UTAMA UNTUK TOMBOL RESET ADA DI SINI --}}
-                    {{-- ========================================================== --}}
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h6 class="mb-0 font-weight-bold">Hasil Clustering</h6>
                         <div>
-                            {{-- Tombol "Proses" atau "Proses Ulang" (sintaks BS4) --}}
                             <button type="button" class="btn btn-sm btn-info" data-toggle="modal"
                                 data-target="#modalProses">
                                 <i class="fas fa-spinner me-2"></i>
                                 {{ isset($hasilClusterTabel) ? 'Proses Ulang' : 'Proses' }}
                             </button>
-
-                            {{-- Tombol "Reset" yang hanya muncul jika ada hasil --}}
                             @isset($hasilClusterTabel)
                                 <a href="{{ route('cluster.reset') }}" class="btn btn-sm btn-danger">
                                     <i class="fas fa-trash-alt me-2"></i>
@@ -36,7 +30,6 @@
                             @endisset
                         </div>
                     </div>
-                    {{-- ========================================================== --}}
 
                     <div class="card-body">
                         {{-- Notifikasi untuk pesan dari session (success, error) & validasi --}}
@@ -56,6 +49,7 @@
                                     <tr>
                                         <th>No</th>
                                         <th>Nama Wilayah</th>
+                                        <th>Jumlah Kejadian</th>
                                         <th>Cluster</th>
                                     </tr>
                                 </thead>
@@ -65,17 +59,18 @@
                                         @forelse ($hasilClusterTabel as $item)
                                             <tr>
                                                 <td>{{ $loop->iteration }}</td>
-                                                <td>{{ $item['lokasi'] }}</td>
+                                                <td>{{ $item['kecamatan'] }}</td>
+                                                <td class="text-center">{{  $item['jumlah_kejadian'] }}</td>
                                                 <td class="text-center">
-                                                    @if($item['cluster'] == -1)
+                                                    @if($item['cluster_id'] == -1)
                                                         <span class="badge bg-secondary">NOISE</span>
                                                     @else
                                                         {{-- Logika warna badge dinamis --}}
                                                         @php
                                                             $colors = ['success', 'primary', 'info', 'warning', 'danger'];
-                                                            $color = $colors[$item['cluster'] % count($colors)];
+                                                            $color = $colors[$item['cluster_id'] % count($colors)];
                                                         @endphp
-                                                        <span class="badge bg-{{ $color }}">C{{ $item['cluster'] + 1 }}</span>
+                                                        <span class="badge bg-{{ $color }}">{{ $item['cluster_label'] }}</span>
                                                     @endif
                                                 </td>
                                             </tr>

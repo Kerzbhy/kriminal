@@ -12,7 +12,7 @@ class DataController extends Controller
         $data = [
             'title' => 'Data Kriminal',
             'menuData' => 'active',
-            'data_kriminal' => DataKriminal::all(),
+            'data_kriminal' => DataKriminal::paginate(25),
         ];
 
         return view('admin.data.data', $data);

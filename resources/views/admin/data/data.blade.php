@@ -25,26 +25,22 @@
                         <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                             <thead style="background-color: #d3d5d6ff; color: white;" class="text-center">
                                 <tr>
-                                    <th>Lokasi</th>
+                                    <th>Kecamatan</th>
                                     <th>Latitude</th>
                                     <th>Longitude</th>
-                                    <th>Total Kejadian</th>
-                                    <th>Jenis Kejadian</th>
-                                    <th>Avg. Kerugian</th>
-                                    <th>Jumlah Penduduk</th>
+                                    <th>Jenis Kejahatan</th>
+                                    <th>Kerugian</th>
                                     <th>Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @forelse ($data_kriminal as $item)
                                     <tr class="text-center">
-                                        <td>{{ $item->lokasi }}</td>
+                                        <td>{{ $item->kecamatan }}</td>
                                         <td>{{ $item->latitude }}</td>
                                         <td>{{ $item->longitude }}</td>
-                                        <td>{{ $item->jumlah_kejadian }}</td>
-                                        <td>{{ $item->jenis_kejahatan_dominan }}</td>
-                                        <td>{{ $item->rata_rata_kerugian_juta }}</td>
-                                        <td>{{ $item->jumlah_penduduk }}</td>
+                                        <td>{{ $item->jenis_kejahatan }}</td>
+                                        <td>{{ $item->kerugian_juta }}</td>
                                         <td>
                                             <button class="btn btn-warning btn-sm" data-toggle="modal"
                                                 data-target="#editModal{{ $item->id }}">
@@ -61,28 +57,37 @@
                                                 aria-labelledby="hapusModalLabel{{ $item->id }}" aria-hidden="true">
                                                 <div class="modal-dialog" role="document">
                                                     <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            {{-- Judul Modal --}}
+                                                            <h5 class="modal-title" id="hapusModalLabel{{ $item->ID }}">
+                                                                Konfirmasi Hapus Data</h5>
+                                                        </div>
+
+                                                        {{-- Form diletakkan di sini untuk mencakup tombol di footer --}}
                                                         <form action="{{ route('data.destroy', $item->id) }}" method="POST">
                                                             @csrf
                                                             @method('DELETE')
-                                                            <div class="modal-header bg-danger text-white">
-                                                                <h5 class="modal-title" id="hapusModalLabel{{ $item->id }}">
-                                                                    Konfirmasi
-                                                                    Hapus</h5>
-                                                            </div>
+
                                                             <div class="modal-body">
-                                                                Apakah Anda yakin ingin menghapus data kriminal
-                                                                <strong>{{ $item->lokasi }}</strong>?
+                                                                {{-- Isi Pesan Konfirmasi --}}
+                                                                <p>Apakah Anda yakin ingin menghapus data untuk Kecamatan:</p>
+                                                                <p><strong>{{ $item->kecamatan }}
+                                                                        ({{ $item->jenis_kejahatan }})</strong>?</p>
+                                                                <p class="text-danger small">Tindakan ini tidak dapat
+                                                                    dibatalkan.</p>
                                                             </div>
+
                                                             <div class="modal-footer">
+                                                                {{-- Tombol Aksi --}}
                                                                 <button type="button" class="btn btn-secondary"
                                                                     data-dismiss="modal">Batal</button>
                                                                 <button type="submit" class="btn btn-danger">Ya, Hapus</button>
                                                             </div>
                                                         </form>
+
                                                     </div>
                                                 </div>
                                             </div>
-
                                         </td>
                                     </tr>
                                 @empty
@@ -92,6 +97,9 @@
                                 @endforelse
                             </tbody>
                         </table>
+                    </div>
+                    <div class="d-flex justify-content-center">
+                        {{ $data_kriminal->links() }}
                     </div>
                 </div>
             </div>
