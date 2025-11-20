@@ -32,7 +32,6 @@
                     </div>
 
                     <div class="card-body">
-                        {{-- Notifikasi untuk pesan dari session (success, error) & validasi --}}
                         @if(session('success'))
                         <div class="alert alert-success">{{ session('success') }}</div> @endif
                         @if(session('error'))
@@ -106,7 +105,7 @@
         </div>
     </div>
 
-    {{-- Modal Proses Clustering (dengan sintaks BS4) --}}
+
     <div class="modal fade" id="modalProses" tabindex="-1" role="dialog" aria-labelledby="modalProsesLabel"
         aria-hidden="true">
         <div class="modal-dialog modal-md modal-dialog-centered" role="document">
