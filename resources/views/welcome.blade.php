@@ -15,7 +15,8 @@
   <!-- Fonts -->
   <link href="https://fonts.googleapis.com" rel="preconnect">
   <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Raleway:wght@500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Raleway:wght@500;700&display=swap"
+    rel="stylesheet">
 
   <!-- Vendor CSS Files -->
   <link href="{{ asset('enno/assets/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
@@ -31,22 +32,24 @@
 <body class="index-page">
 
   <!-- ======= Header ======= -->
-  <header id="header" class="header d-flex align-items-center sticky-top">
-    <div class="container-fluid container-xl position-relative d-flex align-items-center">
+  <header id="header" class="header d-flex align-items-center fixed-top">
+    {{-- Kita akan membungkus 'container-fluid' di dalam 'div' baru --}}
+    <div class="container custom-navbar-container">
+      <div class="container-fluid container-xl position-relative d-flex align-items-center">
+        <a href="#" class="logo d-flex align-items-center me-auto">
+          <h1 class="sitename">Si-Krim</h1>
+        </a>
+        <nav id="navmenu" class="navmenu">
+          <ul>
+            <li><a href="#hero">Home</a></li>
+            <li><a href="#about">Tentang</a></li>
+            <li><a href="#data">Data</a></li>
+            <li><a href="#map">Peta</a></li>
+          </ul>
+          <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+        </nav>
 
-      <a href="#" class="logo d-flex align-items-center me-auto">
-        <h1 class="sitename">Si-Krim</h1>
-      </a>
-
-      <nav id="navmenu" class="navmenu">
-        <ul>
-          <li><a href="#hero" class="active">Home</a></li>
-          <li><a href="#about">Tentang</a></li>
-          <li><a href="#services">Data</a></li>
-          <li><a href="#contact">Peta</a></li>
-        </ul>
-        <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
-      </nav>
+      </div>
     </div>
   </header>
   <!-- End Header -->
@@ -63,11 +66,77 @@
 
   <!-- ======= About Section ======= -->
   <section id="about" class="about section">
+
+    <!-- Section Title -->
     <div class="container section-title" data-aos="fade-up">
-      <span>Tentang<br></span>
-      <h2>Tentang Kami</h2>
-      <p>Aplikasi ini membantu menganalisis dan mengelompokkan tingkat kriminalitas berdasarkan kepadatan penduduk di wilayah Kota Kendari.</p>
+      <h2>Tentang Si-Krim</h2>
+      <p>Sebuah Sistem Pendukung Keputusan untuk Analisis Spasial Kriminalitas di Kota Kendari.</p>
+    </div><!-- End Section Title -->
+
+    <div class="container">
+
+      <div class="row gy-4 justify-content-center">
+        <div class="col-lg-6 order-1 order-lg-2" data-aos="fade-up" data-aos-delay="100">
+          <img src="{{ asset('enno/assets/img/about.jpg') }}" class="img-fluid" alt="">
+        </div>
+        <div class="col-lg-6 order-2 order-lg-1 content" data-aos="fade-up">
+          <h3>Latar Belakang & Tujuan Aplikasi</h3>
+          <p class="fst">
+            Aplikasi "Si-Krim" dibangun sebagai bagian dari tugas akhir untuk menjawab tantangan dalam mengidentifikasi
+            pola dan wilayah rawan kejahatan di Kota Kendari. Tujuan utamanya adalah untuk membantu pihak berwenang
+            dalam membuat keputusan strategis terkait alokasi sumber daya keamanan.
+          </p>
+          <ul>
+            <li><i class="bi bi-check-circle"></i> <span>Mengidentifikasi cluster atau pengelompokan kejadian
+                kriminal</span></li>
+            <li><i class="bi bi-check-circle"></i> <span>Menentukan peringkat wilayah berdasarkan tingkat kerawanan yang
+                dihasilkan dari berbagai faktor.</span></li>
+            <li><i class="bi bi-check-circle"></i> <span>Menyediakan visualisasi data yang intuitif melalui peta
+                interaktif untuk memudahkan analisis.</span></li>
+          </ul>
+          <p>
+            Dengan memanfaatkan teknologi modern, kami berharap aplikasi ini dapat memberikan kontribusi nyata dalam
+            upaya pencegahan dan penanggulangan kriminalitas.
+          </p>
+        </div>
+      </div>
+
+
+      <div class="row gy-4 justify-content-center mt-5">
+        <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
+          <div class="service-item item-cyan position-relative">
+            <i class="bi bi-geo-alt icon"></i>
+            <h3>Clustering Spasial (DBSCAN)</h3>
+            <p>Saya menerapkan algoritma <strong>Density-Based Spatial Clustering of Applications with Noise
+                (DBSCAN)</strong> untuk menemukan area-area padat kejadian kriminal secara otomatis, tanpa perlu
+              menentukan jumlah cluster di awal.</p>
+          </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
+          <div class="service-item item-orange position-relative">
+            <i class="bi bi-bar-chart-steps icon"></i>
+            <h3>Penentuan Prioritas (TOPSIS)</h3>
+            <p>Untuk merangking wilayah berdasarkan tingkat kerawanan, kami menggunakan metode <strong>Technique for
+                Order of Preference by Similarity to Ideal Solution (TOPSIS)</strong>. Metode ini mengevaluasi berbagai
+              kriteria secara simultan.</p>
+          </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="300">
+          <div class="service-item item-teal position-relative">
+            <i class="bi bi-map icon"></i>
+            <h3>Visualisasi Interaktif</h3>
+            <p>Semua hasil analisis, baik dari clustering maupun penentuan peringkat, disajikan dalam bentuk peta
+              interaktif. Hal ini memungkinkan pengguna untuk memahami distribusi spasial kriminalitas dengan lebih
+              mudah.
+            </p>
+          </div>
+        </div>
+      </div>
+
     </div>
+
   </section>
   <!-- End About Section -->
 
@@ -101,4 +170,5 @@
   <script src="{{ asset('enno/assets/js/main.js') }}"></script>
 
 </body>
+
 </html>

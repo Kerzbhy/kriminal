@@ -63,6 +63,11 @@
     --contrast-color: #ffffff;
 }
 
+/* ::selection {
+  background-color: var(--accent-color);
+  color: var(--contrast-color);
+} */
+
 /* Smooth scroll */
 :root {
     scroll-behavior: smooth;
@@ -236,12 +241,17 @@ h6 {
 # Global Header
 --------------------------------------------------------------*/
 .header {
-    color: var(--default-color);
-    background-color: var(--background-color);
-    padding: 15px 0;
+    background-color: transparent !important; /* Hapus background putih */
+    padding: 0 !important;                     /* Hapus padding vertikal */
     transition: all 0.5s;
     z-index: 997;
+    position: fixed !important;
+    top: 20 px;
+    width: 100%;
+    backdrop-filter: blur(6px);
 }
+
+
 
 .header .logo {
     line-height: 1;
@@ -277,6 +287,13 @@ h6 {
 }
 
 @media (max-width: 1200px) {
+        /* Pastikan container menggunakan flex-wrap */
+    .header .container-fluid {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
     .header .logo {
         order: 1;
     }
@@ -288,13 +305,62 @@ h6 {
     }
 
     .header .navmenu {
-        order: 3;
+        order: 4;              /* Menu tampil setelah ikon */
     }
 }
 
+
+
 .scrolled .header {
-    box-shadow: 0px 0 18px rgba(0, 0, 0, 0.1);
+    box-shadow: none !important;
 }
+
+.custom-navbar-container {
+    margin-top: 1rem;
+    padding-top: 0;
+    width: 100%;
+}
+
+/* Style utama navbar (rounded, shadow, dll.) */
+.custom-navbar-container > .container-fluid {
+    background-color: transparent; /* Awalnya transparan */
+    backdrop-filter: blur(5px);
+    box-shadow: none; 
+    border-radius: 50px; /* Inilah yang membuatnya rounded! */
+    padding: 10px 30px !important; /* Beri padding internal */
+    transition: all 0.3s ease-in-out;
+}
+
+.scrolled .custom-navbar-container > .container-fluid {
+    background-color: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+    border: none;
+}
+
+
+/* MODIFIKASI: Ganti warna teks navbar default menjadi PUTIH agar terlihat di atas gambar hero */
+.header:not(.scrolled) .navmenu a,
+.header:not(.scrolled) .logo h1 {
+    color: #ffffff;
+}
+.header:not(.scrolled) .navmenu a.active,
+.header:not(.scrolled) .navmenu a:hover {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+
+/* Style teks saat navbar di-scroll (menjadi gelap) */
+body.scrolled .navmenu a,
+body.scrolled .logo h1 {
+    color: #5e625e !important;
+}
+
+body.scrolled .navmenu a.active, 
+body.scrolled .navmenu a:hover {
+    color: var(--accent-color) !important;
+}
+
 
 /*--------------------------------------------------------------
 # Navigation Menu
@@ -1072,6 +1138,10 @@ section,
 /*--------------------------------------------------------------
 # About Section
 --------------------------------------------------------------*/
+.about .content {
+  text-align: center;
+}
+
 .about .content h3 {
     font-size: 1.75rem;
     font-weight: 700;
