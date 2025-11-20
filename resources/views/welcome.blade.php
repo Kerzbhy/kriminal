@@ -9,8 +9,7 @@
   <meta name="keywords" content="">
 
   <!-- Favicons -->
-  <link href="{{ asset('enno/assets/img/favicon.png') }}" rel="icon">
-  <link href="{{ asset('enno/assets/img/apple-touch-icon.png') }}" rel="apple-touch-icon">
+  <link href="{{ asset('enno/assets/img/polisi.png') }}" rel="icon">
 
   <!-- Fonts -->
   <link href="https://fonts.googleapis.com" rel="preconnect">
@@ -37,6 +36,7 @@
     <div class="container custom-navbar-container">
       <div class="container-fluid container-xl position-relative d-flex align-items-center">
         <a href="#" class="logo d-flex align-items-center me-auto">
+          <img src="{{ asset('enno/assets/img/pol.png') }}" alt="pol">
           <h1 class="sitename">Si-Krim</h1>
         </a>
         <nav id="navmenu" class="navmenu">
@@ -143,7 +143,6 @@
   <!-- ======= Contact Section ======= -->
   <section id="contact" class="contact section">
     <div class="container section-title" data-aos="fade-up">
-      <span>Peta</span>
       <h2>Peta Kriminalitas</h2>
       <p>Visualisasi hasil pengelompokan kriminalitas berdasarkan wilayah.</p>
     </div>
