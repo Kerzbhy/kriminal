@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", function() {
     // 2. LAYER PETA (OpenStreetMap)
     const tiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
-        minZoom: 11,
+        minZoom: 3,
         attribution: '&copy; OpenStreetMap'
     }).addTo(map);
 
