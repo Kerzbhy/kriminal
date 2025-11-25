@@ -15,7 +15,7 @@ class DataKriminal extends Model
         'latitude',
         'longitude',
         'jenis_kejahatan',
-        'kerugian_juta', 
+        'kerugian', 
     ];
     
     /**

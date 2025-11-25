@@ -47,7 +47,7 @@
                                         <td>{{ $item->latitude }}</td>
                                         <td>{{ $item->longitude }}</td>
                                         <td>{{ $item->jenis_kejahatan }}</td>
-                                        <td>{{ $item->kerugian_juta }}</td>
+                                        <td>{{ $item->kerugian }}</td>
                                         <td>
                                             <button class="btn btn-warning btn-sm" data-bs-toggle="modal"
                                                 data-bs-target="#modalEdit{{ $item->id }}">
@@ -67,7 +67,7 @@
                                                     <div class="modal-content">
                                                         <div class="modal-header">
                                                             {{-- Judul Modal --}}
-                                                            <h5 class="modal-title" id="hapusModalLabel{{ $item->ID }}">
+                                                            <h5 class="modal-title" id="hapusModalLabel{{ $item->id }}">
                                                                 Konfirmasi Hapus Data</h5>
                                                         </div>
 

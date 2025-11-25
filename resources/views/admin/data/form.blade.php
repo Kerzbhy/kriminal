@@ -30,9 +30,9 @@
 </div>
 
 <div class="form-group">
-    <label for="kerugian_juta">Kerugian (Juta)</label>
-    <input type="number" step="0.01" class="form-control underline" name="kerugian_juta" id="kerugian_juta"
-        value="{{ old('kerugian_juta', $item->kerugian_juta ?? '') }}" required>
+    <label for="kerugian">Kerugian</label>
+    <input type="number" step="0.01" class="form-control underline" name="kerugian" id="kerugian"
+        value="{{ old('kerugian', $item->kerugian ?? '') }}" required>
 
 <!-- <div class="form-group">
     <label for="jumlah_penduduk">Jumlah Penduduk</label>

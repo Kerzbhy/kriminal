@@ -36,7 +36,7 @@ class DataController extends Controller
             'latitude' => 'required',
             'longitude' => 'required',
             'jenis_kejahatan' => 'required|string',
-            'kerugian_juta' => 'required|numeric',
+            'kerugian' => 'required|numeric',
         ]);
 
         DataKriminal::create($request->all());
@@ -57,7 +57,7 @@ class DataController extends Controller
             'latitude' => 'required',
             'longitude' => 'required',
             'jenis_kejahatan' => 'required|string',
-            'kerugian_juta' => 'required|numeric',
+            'kerugian' => 'required|numeric',
 
         ]);
 
