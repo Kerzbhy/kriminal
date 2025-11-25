@@ -6,19 +6,13 @@ use Illuminate\Http\Request;
 use App\Models\DataKriminal;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Session; // <-- TAMBAHKAN 'use' UNTUK SESSION
+use Illuminate\Support\Facades\Session;
 
 class ClusterController extends Controller
 {
-    /**
-     * Menampilkan halaman clustering.
-     * Method ini akan memeriksa session terlebih dahulu.
-     */
     public function index()
     {
-        // PERIKSA APAKAH ADA DATA HASIL DI SESSION
         if (Session::has('hasil_clustering')) {
-            // Jika ada, ambil data dari session
             $hasil = Session::get('hasil_clustering');
             $data = [
                 'title' => 'Hasil Clustering',
@@ -27,7 +21,6 @@ class ClusterController extends Controller
                 'hasilClusterChart' => $hasil['chart'],
             ];
         } else {
-            // Jika tidak ada session (kondisi awal), kirim data kosong
             $data = [
                 'title' => 'Clustering',
                 'menuCluster' => 'active',
@@ -39,13 +32,8 @@ class ClusterController extends Controller
         return view('admin.cluster.cluster', $data);
     }
 
-    /**
-     * Menerima request dari form, memproses data, memanggil API Flask, 
-     * dan MENYIMPAN HASILNYA KE SESSION.
-     */
     public function prosesCluster(Request $request)
     {
-        // Bagian Validasi, Pengambilan Data, dan Pemanggilan API tetap sama
         $validator = Validator::make($request->all(), [
             'eps' => 'required|numeric|min:0.001',
             'min_samples' => 'required|integer|min:1',
@@ -57,144 +45,126 @@ class ClusterController extends Controller
                 ->withInput();
         }
 
-        $data_kriminal = DataKriminal::all(['kecamatan', 'latitude', 'longitude']);
+        // 1. AMBIL DATA LENGKAP (Sertakan ID, Jenis, Kerugian)
+        $data_kriminal = DataKriminal::all(['id', 'kecamatan', 'latitude', 'longitude', 'jenis_kejahatan', 'kerugian']);
 
         if ($data_kriminal->isEmpty()) {
-            return redirect()->route('cluster')->with('error', 'Tidak ada data kriminal di database untuk diproses.');
+            return redirect()->route('cluster')->with('error', 'Tidak ada data kriminal di database.');
         }
 
+        // 2. Format Data untuk dikirim ke Python (Bentuk Array of Objects)
         $points = $data_kriminal->map(function ($item) {
-            return [(float) $item->latitude, (float) $item->longitude];
+            return [
+                'id' => $item->id, // Penting untuk mapping balik
+                'kecamatan' => $item->kecamatan,
+                'lat' => (float) $item->latitude,
+                'lon' => (float) $item->longitude,
+                'jenis' => $item->jenis_kejahatan,
+                'rugi' => (float) $item->kerugian
+            ];
         })->toArray();
 
         $dataUntukApi = [
-            'points' => $points,
+            'data' => $points, // Ubah key jadi 'data' biar lebih umum
             'eps' => (float) $request->input('eps'),
             'min_samples' => (int) $request->input('min_samples'),
         ];
 
         try {
-            $response = Http::timeout(30)->post('http://127.0.0.1:5000/api/dbscan', $dataUntukApi);
+            $response = Http::timeout(60)->post('http://127.0.0.1:5001/api/dbscan', $dataUntukApi);
         } catch (\Exception $e) {
-            return redirect()->route('cluster')->with('error', 'Gagal terhubung ke service clustering. Pastikan API Flask aktif.');
+            return redirect()->route('cluster')->with('error', 'Gagal terhubung ke service API Flask.');
         }
 
         if (!$response->successful()) {
-            return redirect()->route('cluster')->with('error', 'Terjadi kesalahan pada service clustering (API). Status: ' . $response->status());
+            return redirect()->route('cluster')->with('error', 'API Error: ' . $response->status());
         }
 
         $hasilFlask = $response->json();
 
-        if (empty($hasilFlask) || !is_array($hasilFlask)) {
-            return redirect()->route('cluster')->with('error', 'Service clustering tidak mengembalikan hasil yang valid.');
-        }
+        // 3. Olah hasil menggunakan metode baru (Lookup by ID)
+        list($hasilClusterTabel, $hasilClusterChart) = $this->formatHasilFlask($hasilFlask);
 
-        // Olah hasil dari Flask
-        list($hasilClusterTabel, $hasilClusterChart) = $this->formatHasilFlask($hasilFlask, $data_kriminal);
-
-        // -- PERUBAHAN UTAMA ADA DI SINI --
-        // SIMPAN HASIL KE DALAM SESSION, BUKAN MENGIRIM LANGSUNG KE VIEW
         Session::put('hasil_clustering', [
             'tabel' => $hasilClusterTabel,
             'chart' => $hasilClusterChart
         ]);
 
-        // KEMUDIAN, REDIRECT KEMBALI KE HALAMAN INDEX
-        // Method 'index' nanti yang akan membaca session ini.
         return redirect()->route('cluster');
     }
 
-    /**
-     * METHOD BARU UNTUK MERESET HASIL
-     * Menghapus hasil clustering dari session.
-     */
     public function resetCluster()
     {
-        // Hapus kunci 'hasil_clustering' dari session
         Session::forget('hasil_clustering');
-
-        // Redirect kembali ke halaman cluster dengan pesan sukses
         return redirect()->route('cluster')->with('success', 'Hasil clustering telah direset.');
     }
 
-
-    private function formatHasilFlask($hasilFlask, $data_kriminal)
+    private function formatHasilFlask($hasilFlask)
     {
-        // === Bagian 1: Siapkan data mentah (SAMA SEPERTI KODE ANDA) ===
-        $hasilClusterMentah = []; // Ini adalah variabel sementara
+        // === Format Data Tabel (Di-group per Kecamatan & Cluster) ===
+        $agregat = [];
+
         foreach ($hasilFlask as $cluster_id => $items) {
             if (!is_array($items))
                 continue;
 
             foreach ($items as $point) {
-                $kecamatan = $data_kriminal->first(function ($value) use ($point) {
-                    return (string) $value->latitude == (string) $point[0] && (string) $value->longitude == (string) $point[1];
-                });
+                // Di Python kita mengirim balik object lengkap, jadi kita ambil kecamatannya
+                $kecamatan = $point['kecamatan'] ?? 'Unknown';
 
-                if ($kecamatan) {
-                    $hasilClusterMentah[] = [
-                        'kecamatan' => $kecamatan->kecamatan,
-                        'cluster' => (int) $cluster_id
+                // Key unik: Gabungan Nama Kecamatan + ID Cluster
+                $key = $kecamatan . '_' . $cluster_id;
+
+                if (!isset($agregat[$key])) {
+                    $agregat[$key] = [
+                        'kecamatan' => $kecamatan,
+                        'jumlah_kejadian' => 0,
+                        'cluster_id' => (int) $cluster_id,
+                        'cluster_label' => ((int) $cluster_id === -1) ? 'NOISE' : 'C' . ((int) $cluster_id + 1),
+                        // Bisa tambahkan total kerugian per cluster jika mau
                     ];
                 }
+                $agregat[$key]['jumlah_kejadian']++;
             }
         }
 
-        // === Bagian 2: Lakukan Agregasi / Peringkasan Data di PHP ===
-        // Di sini kita akan mengubah data mentah di atas menjadi data ringkasan.
-        $hasilAgregat = [];
-        foreach ($hasilClusterMentah as $item) {
-            // Buat kunci unik untuk setiap kombinasi kecamatan dan cluster
-            $key = $item['kecamatan'] . '_cluster_' . $item['cluster'];
-
-            // Jika kunci ini belum ada di hasil ringkasan, buat entri baru
-            if (!isset($hasilAgregat[$key])) {
-            $hasilAgregat[$key] = [
-                'kecamatan' => $item['kecamatan'],
-                'jumlah_kejadian' => 0,
-                'cluster_id' => $item['cluster'], 
-                'cluster_label' => ($item['cluster'] == -1) ? 'Noise' : 'C' . ($item['cluster'] + 1)
-            ];
-        }
-
-
-            // Tambahkan (increment) jumlah kejadian untuk kunci tersebut
-            $hasilAgregat[$key]['jumlah_kejadian']++;
-        }
-
-        // Ubah dari array asosiatif menjadi array numerik standar yang mudah di-loop di Blade
-        $hasilClusterTabel = array_values($hasilAgregat);
-
-        // Urutkan hasil akhir berdasarkan nama kecamatan
-        usort($hasilClusterTabel, function ($a, $b) {
+        // Ratakan array & urutkan nama
+        $tabel = array_values($agregat);
+        usort($tabel, function ($a, $b) {
             return strcmp($a['kecamatan'], $b['kecamatan']);
         });
 
+        // === Format Data Chart Scatter Plot ===
+        // Note: Chart Lat/Long visualnya mungkin jadi agak 'aneh' karena
+        // titik yang berjauhan secara visual bisa satu warna cluster karena Kerugian-nya mirip.
 
-        // === Bagian 3: Siapkan data untuk Chart (TIDAK PERLU DIUBAH) ===
-        // Kode di bawah ini hanya untuk chart dan tidak perlu Anda ubah.
-        $hasilClusterChart = [];
-        $chartColors = ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796', '#5a5c69'];
+        $chartResult = [];
+        $colors = ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#6f42c1', '#fd7e14'];
 
         foreach ($hasilFlask as $cluster_id => $items) {
             if (!is_array($items))
                 continue;
+            $cluster_id = (int) $cluster_id;
 
-            $chart_data = [];
-            foreach ($items as $point) {
-                $chart_data[] = ['x' => $point[1], 'y' => $point[0]];
+            $dataPoints = [];
+            foreach ($items as $p) {
+                $dataPoints[] = [
+                    'x' => $p['lon'],
+                    'y' => $p['lat']
+                    // Note: Chart.js standard scatter cuma x & y.
+                    // Info kerugian/jenis bisa ditambahkan di tooltip pakai Javascript di view.
+                ];
             }
 
-            $color = ($cluster_id == -1) ? 'rgba(128, 128, 128, 0.7)' : $chartColors[intval($cluster_id) % count($chartColors)];
+            $color = ($cluster_id === -1) ? '#858796' : $colors[$cluster_id % count($colors)]; // Abu-abu untuk noise
 
-            $hasilClusterChart[] = [
-                'label' => ($cluster_id == -1) ? 'Noise' : 'Cluster ' . (intval($cluster_id) + 1),
-                'data' => $chart_data,
+            $chartResult[] = [
+                'label' => ($cluster_id === -1) ? 'Noise' : 'Cluster ' . ($cluster_id + 1),
+                'data' => $dataPoints,
                 'backgroundColor' => $color
             ];
         }
 
-        // Kembalikan data tabel yang SUDAH Diringkas dan data chart
-        return [$hasilClusterTabel, $hasilClusterChart];
+        return [$tabel, $chartResult];
     }
 }

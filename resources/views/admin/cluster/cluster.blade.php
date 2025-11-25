@@ -63,13 +63,15 @@
                                                 <td class="text-center">
                                                     @if($item['cluster_id'] == -1)
                                                         <span class="badge bg-secondary">NOISE</span>
+                                                    @elseif($item['cluster_id'] == 0)
+                                                        {{-- Level 0 = C1 (Aman) = Hijau --}}
+                                                        <span class="badge bg-success">{{ $item['cluster_label'] }}</span>
+                                                    @elseif($item['cluster_id'] == 1)
+                                                        {{-- Level 1 = C2 (Sedang) = Warning/Kuning --}}
+                                                        <span class="badge bg-warning ">{{ $item['cluster_label'] }}</span>
                                                     @else
-                                                        {{-- Logika warna badge dinamis --}}
-                                                        @php
-                                                            $colors = ['success', 'primary', 'info', 'warning', 'danger'];
-                                                            $color = $colors[$item['cluster_id'] % count($colors)];
-                                                        @endphp
-                                                        <span class="badge bg-{{ $color }}">{{ $item['cluster_label'] }}</span>
+                                                        {{-- Level 2 = C3 (Rawan) = Merah --}}
+                                                        <span class="badge bg-danger">{{ $item['cluster_label'] }}</span>
                                                     @endif
                                                 </td>
                                             </tr>
@@ -118,13 +120,13 @@
                     <div class="modal-body">
                         <div class="form-group mb-3">
                             <label for="eps">Nilai Epsilon (eps)</label>
-                            <input type="number" step="0.1" class="form-control" name="eps" value="{{ old('eps') }}"
-                                placeholder="Contoh: 0.5" required>
+                            <input type="number" step="0.001" class="form-control" name="eps" value="{{ old('eps') }}"
+                                placeholder="Contoh: 0.1" required>
                         </div>
                         <div class="form-group">
                             <label for="min_samples">Minimum Points</label>
                             <input type="number" class="form-control" name="min_samples" value="{{ old('min_samples') }}"
-                                placeholder="Contoh: 2" required>
+                                placeholder="Contoh: 3" required>
                         </div>
                     </div>
                     <div class="modal-footer">
