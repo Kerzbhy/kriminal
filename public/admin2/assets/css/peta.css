@@ -7,24 +7,45 @@
     width: 100%;
     height: 100%;
     z-index: 1;
-    border-radius: 0 0 0.75rem 0.75rem;
+    border-radius: 0 0 0.35rem 0.35rem;
 }
 
+/* Overlay Loading */
 .map-loading {
     position: absolute;
-    inset: 0;
-    background: rgba(255, 255, 255, 0.85);
+    inset: 0; /* Shortcut untuk top/bottom/left/right: 0 */
+    background: rgba(
+        255,
+        255,
+        255,
+        0.9
+    ); /* Sedikit lebih putih biar teks jelas */
     z-index: 1000;
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-direction: column; /* Biar spinner dan teks vertikal */
+    border-radius: 0 0 0.35rem 0.35rem;
+    transition: opacity 0.5s ease, visibility 0.5s; /* Tambahkan transition */
 }
 
+/* Class untuk menyembunyikan Loading dengan efek Fade */
 .map-loading.hidden {
     opacity: 0;
-    transition: opacity 0.5s ease;
+    visibility: hidden; /* Supaya tidak bisa diklik setelah hilang */
 }
 
+/* Menyembunyikan Attribution Leaflet (Opsional) */
 .leaflet-control-attribution {
     display: none !important;
+}
+
+/* Perbaikan tampilan Popup Leaflet */
+.leaflet-popup-content-wrapper {
+    border-radius: 8px;
+    box-shadow: 0 3px 14px rgba(0, 0, 0, 0.4);
+}
+.leaflet-popup-content {
+    margin: 15px;
+    font-size: 0.85rem;
 }

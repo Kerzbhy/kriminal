@@ -30,11 +30,6 @@
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- Leaflet JS -->
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-<!-- File JS Lokal -->
-<script src="{{ asset('admin2/assets/js/map.js') }}"></script>
 
 <script>
     setInterval(() => {
