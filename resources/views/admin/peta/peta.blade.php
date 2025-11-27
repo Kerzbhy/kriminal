@@ -16,16 +16,18 @@
                     
                     {{-- Header Card + Legend Status --}}
                     <div class="card-header bg-white py-3 d-flex flex-row align-items-center justify-content-between">
-                        <h6 class="m-0 font-weight-bold text-dark">Visualisasi Peta</h6>
+                        <h6 class="m-0 font-weight-bold text-dark">
+                             <i class="fas fa-map-marked-alt me-2"></i>Visualisasi Peta
+                        </h6>
                         
                         {{-- Keterangan Warna (Legend) --}}
                         <div class="small">
                             @if($isClustered)
-                                <span class="badge me-1" style="background-color: #1cc88a;">● C1 (Aman)</span>
-                                <span class="badge me-1 text-dark" style="background-color: #f6c23e;">● C2 (Sedang)</span>
-                                <span class="badge" style="background-color: #e74a3b;">● C3 (Rawan)</span>
+                                <span class="badge me-1" style="background-color: #1cc88a;"><i class="fas fa-shield-alt me-1"></i>C1 (Aman)</span>
+                                <span class="badge me-1 " style="background-color: #f6c23e;"><i class="fas fa-exclamation-circle me-1"></i>C2 (Sedang)</span>
+                                <span class="badge" style="background-color: #e74a3b;"><i class="fas fa-exclamation-triangle me-1"></i>C3 (Rawan)</span>
                             @else
-                                <span class="badge bg-primary">● Titik Lokasi Data</span>
+                                <span class="badge bg-primary"><i class="fas fa-map-marker-alt me-1"></i>Titik Lokasi Data</span>
                             @endif
                         </div>
                     </div>
@@ -54,7 +56,7 @@
                             (Menampilkan data berdasarkan tingkat kerawanan C1, C2, C3)
                         @else
                             <strong class="text-primary"><i class="fas fa-database"></i> Data Mentah</strong> 
-                            (Menampilkan semua data dari database karena proses clustering belum dilakukan/direset)
+                            (Menampilkan semua data karena proses clustering belum dilakukan/direset)
                         @endif
                     </div>
 

@@ -16,9 +16,9 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h6 class="mb-0 font-weight-bold">
-                        Daftar Data Kriminal
+                        <i class="fas fa-database me-2"></i>Daftar Data Kriminal
                         @isset($jumlah_data)
-                            <span class="badge bg-secondary ms-2">{{ $jumlah_data }} Total</span>
+                            <span class="badge bg-secondary ms-2"> <i class="fas fa-archive me-1"></i> {{ $jumlah_data }} Total</span>
                         @endisset
                     </h6>
                     <button type="button" class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#modalTambah">

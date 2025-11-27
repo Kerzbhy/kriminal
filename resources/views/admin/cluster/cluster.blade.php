@@ -15,11 +15,13 @@
                 <div class="card shadow">
 
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <h6 class="mb-0 font-weight-bold">Hasil Clustering</h6>
+                        <h6 class="mb-0 font-weight-bold"><i class="fas fa-project-diagram me-2"></i>
+                            Hasil Clustering
+                        </h6>
                         <div>
                             <button type="button" class="btn btn-sm btn-info" data-toggle="modal"
                                 data-target="#modalProses">
-                                <i class="fas fa-spinner me-2"></i>
+                                <i class="fas fa-sync-alt me-2"></i>
                                 {{ isset($hasilClusterTabel) ? 'Proses Ulang' : 'Proses' }}
                             </button>
                             @isset($hasilClusterTabel)

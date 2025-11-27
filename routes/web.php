@@ -36,7 +36,8 @@ Route::middleware('isLogin')->group(function () {
     // Prioritas
     Route::get('prioritas', [PrioritasController::class, 'index'])->name('prioritas');
     Route::post('prioritas/proses', [PrioritasController::class, 'prosesTopsis'])->name('prioritas.proses');
-
+    Route::get('/prioritas/reset', [App\Http\Controllers\PrioritasController::class, 'resetTopsis'])->name('prioritas.reset');
+    
     // Peta
     Route::get('peta', [PetaController::class, 'index'])->name('peta');
 });
