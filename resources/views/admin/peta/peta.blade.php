@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('page-title', 'Visualisasi Peta')
+@section('page-title', 'Peta')
 
 @section('content')
     <div class="container-fluid py-2">
