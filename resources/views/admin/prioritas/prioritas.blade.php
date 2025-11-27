@@ -97,6 +97,7 @@
                                 </table>
                             </div>
                         @endif
+                        @if(!empty($dataAgregat))
                         <div class="card-footer bg-light small text-muted border-top">
                             <ul class="mb-0 ps-3">
                                 <li><strong class="text-primary">C1 :</strong> Total seluruh kejadian (tidak termasuk noise) di kecamatan tersebut.</li>
@@ -108,6 +109,7 @@
                                 </li>
                             </ul>
                         </div>
+                        @endif
                     </div>
                 </div>
             </div>

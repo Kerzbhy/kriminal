@@ -17,15 +17,17 @@ document.addEventListener("DOMContentLoaded", function() {
     // 3. FUNGSI LOADER (Spinner)
     const hideLoader = () => {
         if (loader && !loader.classList.contains('hidden')) {
-            loader.style.opacity = '0';
+            loader.classList.add('hidden'); 
+            // Hapus elemen dari HTML setelah animasi selesai (500ms)
             setTimeout(() => { 
                 if(loader) loader.remove(); 
             }, 500);
         }
     };
+
     // Hilangkan loader saat tile siap, atau setelah 3 detik (fallback)
     tiles.on('load', hideLoader);
-    setTimeout(hideLoader, 3000);
+    setTimeout(hideLoader, 4000);
 
     // 4. AMBIL DATA DARI JEMBATAN BLADE
     // Kita baca variabel global yang nanti kita definisikan di Blade

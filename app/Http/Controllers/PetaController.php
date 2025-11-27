@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\DataKriminal; // Pastikan import Model
-use Illuminate\Support\Facades\Session; // Import Session
+use App\Models\DataKriminal; 
+use Illuminate\Support\Facades\Session;
 
 class PetaController extends Controller
 {
@@ -13,23 +13,14 @@ class PetaController extends Controller
         $dataPeta = [];
         $isClustered = false;
 
-        // 1. Cek apakah user sudah melakukan proses clustering (Data tersimpan di Session)
         if (Session::has('hasil_clustering')) {
             $hasil = Session::get('hasil_clustering');
-            
-            // Ambil bagian 'chart' karena di ClusterController kita sudah memformatnya
-            // lengkap dengan lat, lng, warna, dan info popup.
             $dataPeta = $hasil['chart']; 
             $isClustered = true;
         } 
         else {
-            // 2. Jika BELUM proses cluster, ambil data mentah dari database
-            // Kita format manual agar struktur datanya sama dengan hasil clustering
-            // Supaya view (Blade) tidak error saat looping.
-            
             $raw = DataKriminal::all();
             
-            // Format jadi 1 Grup (Grup Data Mentah)
             $dataPeta = [
                 [
                     'label' => 'Semua Data Kriminal',

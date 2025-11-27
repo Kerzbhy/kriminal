@@ -5,7 +5,6 @@
 @section('content')
     <div class="container-fluid py-2">
         <div class="row">
-            {{-- Header Halaman --}}
             <div class="ms-3 mb-3">
                 <h3 class="mb-0 h4 font-weight-bolder">Peta</h3>
                 <p class="mb-0">Menampilkan Visual Geografis Kota Kendari</p>
@@ -13,8 +12,6 @@
 
             <div class="col-12">
                 <div class="card shadow border-0" style="overflow: hidden;">
-                    
-                    {{-- Header Card + Legend Status --}}
                     <div class="card-header bg-white py-3 d-flex flex-row align-items-center justify-content-between">
                         <h6 class="m-0 font-weight-bold text-dark">
                              <i class="fas fa-map-marked-alt me-2"></i>Visualisasi Peta
@@ -39,8 +36,8 @@
                         <div id="map-loading"
                             class="d-flex align-items-center justify-content-center flex-column position-absolute w-100 h-100 bg-light"
                             style="z-index: 999; top:0; left:0; opacity: 0.8;">
-                            <div class="spinner-border text-primary" role="status"></div>
-                            <div class="mt-2 fw-bold text-primary">Memuat Peta...</div>
+                            <div class="spinner-border text-dark" role="status"></div>
+                            <div class="mt-2 fw-bold text-dark">Memuat Peta...</div>
                         </div>
 
                         {{-- 2. Wadah Peta --}}
