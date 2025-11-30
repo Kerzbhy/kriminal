@@ -7,6 +7,7 @@ use App\Models\DataKriminal;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Cache;
 
 class ClusterController extends Controller
 {
@@ -19,6 +20,7 @@ class ClusterController extends Controller
                 'menuCluster' => 'active',
                 'hasilClusterTabel' => $hasil['tabel'],
                 'hasilClusterChart' => $hasil['chart'],
+                'dbiScore' => $hasil['dbi'] ?? 0,
             ];
         } else {
             $data = [
@@ -34,6 +36,7 @@ class ClusterController extends Controller
 
     public function prosesCluster(Request $request)
     {
+        // 1. Validasi Input (BIARKAN SAMA)
         $validator = Validator::make($request->all(), [
             'eps' => 'required|numeric|min:0.001',
             'min_samples' => 'required|integer|min:1',
@@ -45,17 +48,17 @@ class ClusterController extends Controller
                 ->withInput();
         }
 
-        // 1. AMBIL DATA LENGKAP (Sertakan ID, Jenis, Kerugian)
+        // 2. AMBIL DATA LENGKAP
         $data_kriminal = DataKriminal::all(['id', 'kecamatan', 'latitude', 'longitude', 'jenis_kejahatan', 'kerugian']);
 
         if ($data_kriminal->isEmpty()) {
             return redirect()->route('cluster')->with('error', 'Tidak ada data kriminal di database.');
         }
 
-        // 2. Format Data untuk dikirim ke Python (Bentuk Array of Objects)
+        // 3. Format Data untuk Python
         $points = $data_kriminal->map(function ($item) {
             return [
-                'id' => $item->id, // Penting untuk mapping balik
+                'id' => $item->id,
                 'kecamatan' => $item->kecamatan,
                 'lat' => (float) $item->latitude,
                 'lon' => (float) $item->longitude,
@@ -64,14 +67,13 @@ class ClusterController extends Controller
             ];
         })->toArray();
 
-        $dataUntukApi = [
-            'data' => $points, // Ubah key jadi 'data' biar lebih umum
-            'eps' => (float) $request->input('eps'),
-            'min_samples' => (int) $request->input('min_samples'),
-        ];
-
+        // 4. Request API Python
         try {
-            $response = Http::timeout(60)->post('http://127.0.0.1:5001/api/dbscan', $dataUntukApi);
+            $response = Http::timeout(60)->post('http://127.0.0.1:5001/api/dbscan', [
+                'data' => $points,
+                'eps' => (float) $request->input('eps'),
+                'min_samples' => (int) $request->input('min_samples'),
+            ]);
         } catch (\Exception $e) {
             return redirect()->route('cluster')->with('error', 'Gagal terhubung ke service API Flask.');
         }
@@ -80,15 +82,26 @@ class ClusterController extends Controller
             return redirect()->route('cluster')->with('error', 'API Error: ' . $response->status());
         }
 
-        $hasilFlask = $response->json();
+        // 5. PARSING RESPON DENGAN BENAR (Perbaikan disini)
+        $jsonResponse = $response->json();
 
-        // 3. Olah hasil menggunakan metode baru (Lookup by ID)
-        list($hasilClusterTabel, $hasilClusterChart) = $this->formatHasilFlask($hasilFlask);
+        // Python mengembalikan: { "clusters": { ... }, "dbi": 0.123 }
+        // Kita pecah dulu isinya
+        $hasilClusterRaw = $jsonResponse['clusters'] ?? []; // Array cluster
+        $dbiScore = isset($jsonResponse['dbi']) ? round($jsonResponse['dbi'], 4) : 0; // Nilai DBI
 
+        // 6. Olah Hasil Clustering (Gunakan Array Cluster saja)
+        list($hasilClusterTabel, $hasilClusterChart) = $this->formatHasilFlask($hasilClusterRaw);
+
+        // 7. Simpan Session (Simpan juga DBI untuk ditampilkan di view)
         Session::put('hasil_clustering', [
             'tabel' => $hasilClusterTabel,
-            'chart' => $hasilClusterChart
+            'chart' => $hasilClusterChart,
+            'dbi' => $dbiScore
         ]);
+
+        // 8. Simpan Cache (Untuk Mobile API)
+        Cache::put('latest_map_clustering', $hasilClusterChart, now()->addHours(24));
 
         return redirect()->route('cluster');
     }
@@ -99,16 +112,17 @@ class ClusterController extends Controller
         return redirect()->route('cluster')->with('success', 'Hasil clustering telah direset.');
     }
 
-  private function formatHasilFlask($hasilFlask)
+    private function formatHasilFlask($hasilFlask)
     {
         // === 1. Analisis Skor Keparahan (Untuk Menentukan C1, C2, C3) ===
         $clusterStats = [];
 
         foreach ($hasilFlask as $cluster_id => $items) {
-            $cid = (int)$cluster_id;
-            
+            $cid = (int) $cluster_id;
+
             // Lewati Noise dulu dalam perhitungan ranking
-            if ($cid == -1) continue; 
+            if ($cid == -1)
+                continue;
 
             // Hitung total metrics per cluster
             $count = count($items);
@@ -144,7 +158,8 @@ class ClusterController extends Controller
                     $level = $index; // Jika cuma nemu 1-3 cluster, petakan langsung 1:1
                 } else {
                     $level = floor($index / $chunkSize); // Jika banyak, bagi rata
-                    if ($level > 2) $level = 2; // Pastikan mentok di C3
+                    if ($level > 2)
+                        $level = 2; // Pastikan mentok di C3
                 }
                 $mapping[$stat['id']] = $level; // ID Asli -> 0/1/2
             }
@@ -155,7 +170,7 @@ class ClusterController extends Controller
         $levelLabels = ['C1 (Aman)', 'C2 (Sedang)', 'C3 (Rawan)'];
 
         foreach ($hasilFlask as $cluster_id => $items) {
-            $cid = (int)$cluster_id;
+            $cid = (int) $cluster_id;
 
             // Tentukan Level Baru & Label
             if ($cid == -1) {
@@ -193,21 +208,21 @@ class ClusterController extends Controller
         // === 4. Proses Data Visualisasi (Chart & Peta) ===
         // Di sini kita susun struktur data agar mengandung lat, lng, dan warna fix
         $chartResult = [];
-        
+
         // Warna Fix: Noise=Abu, C1=Hijau, C2=Kuning, C3=Merah
         $colors = [
-            -1 => '#858796', 
-             0 => '#1cc88a', 
-             1 => '#f6c23e', 
-             2 => '#e74a3b'
+            -1 => '#858796',
+            0 => '#1cc88a',
+            1 => '#f6c23e',
+            2 => '#e74a3b'
         ];
 
         // Kumpulkan titik berdasarkan Level Baru (Grouping ulang dari hasil DBSCAN)
         $groupedPoints = [];
 
         foreach ($hasilFlask as $cluster_id => $items) {
-            $cid = (int)$cluster_id;
-            
+            $cid = (int) $cluster_id;
+
             // Konversi ID DBSCAN -> Level C1/C2/C3
             $lvl = ($cid == -1) ? -1 : ($mapping[$cid] ?? 0);
 
@@ -227,10 +242,14 @@ class ClusterController extends Controller
 
         // Bentuk struktur final untuk Javascript
         foreach ($groupedPoints as $lvl => $points) {
-            if ($lvl == -1) $lText = 'NOISE';
-            elseif ($lvl == 0) $lText = 'C1 (Aman)';
-            elseif ($lvl == 1) $lText = 'C2 (Sedang)';
-            else $lText = 'C3 (Rawan)';
+            if ($lvl == -1)
+                $lText = 'NOISE';
+            elseif ($lvl == 0)
+                $lText = 'C1 (Aman)';
+            elseif ($lvl == 1)
+                $lText = 'C2 (Sedang)';
+            else
+                $lText = 'C3 (Rawan)';
 
             $chartResult[] = [
                 'label' => $lText,

@@ -4,20 +4,30 @@ namespace App\Http\Controllers;
 
 use App\Models\DataKriminal;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class DataController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $search = $request->input('search');
+        $query = DataKriminal::query();
+        $query->when($search, function ($q, $searchKeyword) {
+            return $q->where(DB::raw('LOWER(kecamatan)'), 'like', "%{$searchKeyword}%")
+         ->orWhere(DB::raw('LOWER(jenis_kejahatan)'), 'like', "%{$searchKeyword}%");
+        });
+
+        $data_kriminal_paginated = $query->latest()->paginate(25);
         $data = [
             'title' => 'Data Kriminal',
             'menuData' => 'active',
-            'data_kriminal' => DataKriminal::paginate(25),
-            'jumlah_data'     => DataKriminal::count()
+            'data_kriminal' => $data_kriminal_paginated,
+            'jumlah_data' => DataKriminal::count(),
+            'search' => $search
         ];
-
         return view('admin.data.data', $data);
     }
+
 
     public function create()
     {
@@ -49,6 +59,7 @@ class DataController extends Controller
         $data = DataKriminal::findOrFail($id);
         return view('admin.data.edit', compact('data'));
     }
+
 
     public function update(Request $request, $id)
     {

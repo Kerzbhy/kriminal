@@ -11,12 +11,13 @@
         </nav>
         <div class="collapse navbar-collapse mt-sm-0 mt-2 me-md-0 me-sm-4" id="navbar">
             <div class="ms-md-auto pe-md-3 d-flex align-items-center">
-                @if (!request()->routeIs('dashboard'))
-                    <div class="input-group input-group-outline">
-                        <label class="form-label">Type here...</label>
-                        <input type="text" class="form-control">
-                    </div>
-                 @endif
+                @if (!request()->routeIs('dashboard', 'data'))
+                    <form action="{{ route('data.index') }}" method="GET" class="w-100">
+                        <div class="input-group input-group-outline">
+                            <input type="text" name="search" class="form-control" placeholder="Search..." value="{{ $search ?? '' }}">
+                        </div>
+                    </form>
+                @endif
             </div>
             <ul class="navbar-nav d-flex align-items-center  justify-content-end">
                 <li class="nav-item d-xl-none ps-3 d-flex align-items-center">

@@ -1,52 +1,81 @@
+/* --- 1. SETUP CONTAINER PETA --- */
 .map {
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 1;
-    border-radius: 0 0 0.35rem 0.35rem;
+    top: 0; left: 0; right: 0; bottom: 0;
+    width: 100%; height: 100%; z-index: 1;
+    border-radius: 0 0 0.35rem 0.35rem; 
 }
 
-/* Overlay Loading */
+/* --- 2. SETUP LOADING OVERLAY --- */
 .map-loading {
-    position: absolute;
-    inset: 0; /* Shortcut untuk top/bottom/left/right: 0 */
-    background: rgba(
-        255,
-        255,
-        255,
-        0.9
-    ); /* Sedikit lebih putih biar teks jelas */
-    opacity: 1;
-    z-index: 1000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column; /* Biar spinner dan teks vertikal */
-    border-radius: 0 0 0.35rem 0.35rem;
-    transition: opacity 0.5s ease, visibility 0.5s; /* Tambahkan transition */
+    position: absolute; inset: 0;
+    background: rgba(255, 255, 255, 0.95); opacity: 1; z-index: 1000;
+    display: flex; align-items: center; justify-content: center; flex-direction: column; 
+    border-radius: 0 0 0.35rem 0.35rem; transition: opacity 0.5s ease, visibility 0.5s; 
+}
+.map-loading.hidden { opacity: 0; visibility: hidden; }
+
+/* --- 3. CUSTOM LEAFLET --- */
+.leaflet-control-attribution { display: none !important; }
+.leaflet-popup-content-wrapper { border-radius: 8px; box-shadow: 0 3px 14px rgba(0, 0, 0, 0.4); }
+.leaflet-popup-content { margin: 15px; font-size: 0.85rem; }
+
+/* 
+   === 4. CUSTOM SWITCH TOGGLE (FULL PERBAIKAN) === 
+   Bagian ini mengatur ukuran, posisi titik, dan kerataan layout.
+*/
+
+/* Reset & Style Dasar Switch */
+.form-check-input { 
+    cursor: pointer;
+    border-color: #dee2e6;
+    background-color: #e9ecef;
+    transition: background-position .15s ease-in-out, background-color 0.3s;
+    
+    /* PENTING: Hapus margin atas bawaan agar sejajar teks */
+    margin-top: 0 !important; 
 }
 
-/* Class untuk menyembunyikan Loading dengan efek Fade */
-.map-loading.hidden {
-    opacity: 0;
-    visibility: hidden; /* Supaya tidak bisa diklik setelah hilang */
+/* Ukuran Switch & Posisi Lingkaran */
+.form-switch .form-check-input { 
+    width: 3.2em;   /* Sedikit diperlebar */
+    height: 1.6em;  /* Sedikit dipertinggi */
+    margin-left: 0;
+    margin-right: 0.5rem;
+    
+    /* -- POSISI TITIK (Agar Rapi di Tengah) -- */
+    /* Posisi Awal (Kiri) */
+    background-position: left 0.2rem center; 
+    /* Ukuran Lingkaran Putih */
+    background-size: 1.2rem; 
 }
 
-/* Menyembunyikan Attribution Leaflet (Opsional) */
-.leaflet-control-attribution {
-    display: none !important;
-}
-
-/* Perbaikan tampilan Popup Leaflet */
-.leaflet-popup-content-wrapper {
-    border-radius: 8px;
-    box-shadow: 0 3px 14px rgba(0, 0, 0, 0.4);
-}
-.leaflet-popup-content {
-    margin: 15px;
+/* Label Teks di Sebelahnya */
+.form-check-label {
+    cursor: pointer;
     font-size: 0.85rem;
+    font-weight: bold;
+    user-select: none;
+    line-height: 1.6em; /* Menyesuaikan tinggi switch */
+}
+
+/* 
+   === WARNA & POSISI SAAT AKTIF (CHECKED) === 
+   Saat diklik, warna berubah & titik pindah ke kanan dengan rapi
+*/
+
+/* 1. CLUSTER: Warna Biru */
+#switchCluster:checked {
+    background-color: #4e73df;
+    border-color: #4e73df;
+    /* Pindah posisi titik ke Kanan */
+    background-position: right 0.2rem center; 
+}
+
+/* 2. HEATMAP: Warna Merah */
+#switchHeatmap:checked {
+    background-color: #e74a3b;
+    border-color: #e74a3b;
+    /* Pindah posisi titik ke Kanan */
+    background-position: right 0.2rem center;
 }

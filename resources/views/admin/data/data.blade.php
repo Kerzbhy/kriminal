@@ -18,7 +18,8 @@
                     <h6 class="mb-0 font-weight-bold">
                         <i class="fas fa-database me-2"></i>Daftar Data Kriminal
                         @isset($jumlah_data)
-                            <span class="badge bg-secondary ms-2"> <i class="fas fa-archive me-1"></i> {{ $jumlah_data }} Total</span>
+                            <span class="badge bg-secondary ms-2"> <i class="fas fa-archive me-1"></i> {{ $jumlah_data }}
+                                Total</span>
                         @endisset
                     </h6>
                     <button type="button" class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#modalTambah">
@@ -39,9 +40,9 @@
                                     <th>Aksi</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody id="kriminalTableBody">
                                 @forelse ($data_kriminal as $item)
-                                @include('admin.data.edit', ['item' => $item])
+                                    @include('admin.data.edit', ['item' => $item])
                                     <tr class="text-center">
                                         <td>{{ $item->kecamatan }}</td>
                                         <td>{{ $item->latitude }}</td>
@@ -100,14 +101,14 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="8" class="text-center text-danger">Belum ada data.</td>
+                                        <td colspan="6" class="text-center text-danger py-4">Data tidak ditemukan.</td>
                                     </tr>
                                 @endforelse
                             </tbody>
                         </table>
                     </div>
                     <div class="d-flex justify-content-center">
-                        {{ $data_kriminal->links() }}
+                        {{ $data_kriminal->appends(request()->input())->links() }}
                     </div>
                 </div>
             </div>

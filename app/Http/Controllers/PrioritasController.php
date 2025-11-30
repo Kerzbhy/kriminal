@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Cache; 
 
 class PrioritasController extends Controller
 {
@@ -85,6 +86,8 @@ class PrioritasController extends Controller
             'weights' => $weights,
             'impacts' => $impacts
         ]);
+
+        Cache::put('latest_topsis_result', $result, now()->addHours(24));
 
         // G. Redirect kembali ke index (PRG Pattern)
         // Data akan diambil oleh method index() dari session
