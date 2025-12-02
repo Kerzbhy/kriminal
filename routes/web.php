@@ -37,10 +37,14 @@ Route::middleware('isLogin')->group(function () {
     Route::get('prioritas', [PrioritasController::class, 'index'])->name('prioritas');
     Route::post('prioritas/proses', [PrioritasController::class, 'prosesTopsis'])->name('prioritas.proses');
     Route::get('/prioritas/reset', [App\Http\Controllers\PrioritasController::class, 'resetTopsis'])->name('prioritas.reset');
-    
+    Route::get('/prioritas/cetak', [App\Http\Controllers\PrioritasController::class, 'cetakLaporan'])->name('prioritas.cetak');
+
     // Peta
     Route::get('peta', [PetaController::class, 'index'])->name('peta');
 });
+
+// Landing Page Route
+Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('welcome');
 
 // Catatan: Route 'check-sync-token' tidak dimasukkan ke middleware auth
 // karena diasumsikan bisa diakses kapan saja untuk polling. Jika butuh login, pindahkan ke dalam.

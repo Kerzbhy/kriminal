@@ -52,7 +52,7 @@
                                             </th>
                                             <th
                                                 class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                                                Kepadatan <span class="text-success">(C4)</span>
+                                                Kepadatan Penduduk <span class="text-success">(C4)</span>
                                             </th>
                                         </tr>
                                     </thead>
@@ -220,6 +220,9 @@
                     <div class="card shadow">
                         <div class="card-header bg-white">
                             <h6 class="mb-0 fw-bold text-dark">Hasil Peringkat Akhir (Ranking)</h6>
+                            <a href="{{ route('prioritas.cetak') }}" target="_blank" class="btn btn-sm btn-dark mb-0">
+                            <i class="fas fa-print me-2"></i>Cetak Laporan
+                        </a>
                         </div>
                         <div class="card-body p-0">
                             <div class="table-responsive">

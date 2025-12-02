@@ -1,0 +1,32 @@
+/* Custom style peta */
+#map-container {
+    height: 500px;
+    width: 100%;
+    border-radius: 10px;
+    z-index: 1;
+}
+
+.badge-rank {
+    font-size: 0.9em;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+/* 1. HILANGKAN WATERMARK LEAFLET DI PETA */
+.leaflet-control-attribution {
+    display: none !important;
+}
+
+/* (Opsional) 2. Hilangkan Scrollbar Default Chrome agar lebih bersih */
+::-webkit-scrollbar {
+    width: 10px;
+}
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 5px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}

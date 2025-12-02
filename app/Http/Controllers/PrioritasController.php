@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache; 
+use Barryvdh\DomPDF\Facade\Pdf; 
 
 class PrioritasController extends Controller
 {
@@ -132,7 +133,7 @@ class PrioritasController extends Controller
 
     private function gabungDataPerKecamatan($points)
     {
-        $dataKepadatan = ['Abeli' => 1200, 'Baruga' => 2800, 'Kadia' => 4500, 'Kambu' => 3200, 'Kendari Barat' => 5200, 'Mandonga' => 4800, 'Poasia' => 3100, 'Puuwatu' => 2500, 'Ranomeeto' => 1500, 'Wua-Wua' => 4100];
+        $dataKepadatan = ['Abeli' => 1335, 'Baruga' => 843, 'Kadia' => 4872, 'Kambu' => 1140, 'Kendari Barat' => 1997, 'Mandonga' => 1602, 'Poasia' => 1081, 'Puuwatu' => 1049, 'Ranomeeto' => 1733, 'Wua Wua' => 3174];
         $skorKejahatan = ['Pembunuhan' => 4, 'Pelecehan Anak' => 4, 'Penganiayaan' => 3, 'Penipuan' => 2, 'Pencurian' => 2];
 
         $stats = [];
@@ -177,5 +178,50 @@ class PrioritasController extends Controller
         }
         usort($finalData, fn($a, $b) => strcmp($a['kecamatan'], $b['kecamatan']));
         return $finalData;
+    }
+
+    // ==========================================
+    // 5. CETAK LAPORAN PDF
+    // ==========================================
+    public function cetakLaporan()
+    {
+        // A. Ambil data Hasil Hitungan dari Session
+        $hasilTopsis = Session::get('hasil_topsis');
+        
+        // Cek data kosong
+        if (!$hasilTopsis) {
+            return redirect()->route('prioritas')->with('error', 'Tidak ada data hitungan untuk dicetak. Silakan hitung dahulu.');
+        }
+
+        // B. Ambil Data Agregat (Data Awal) untuk ditampilkan juga
+        $dataAgregat = $this->getAggregatedData();
+
+        // C. Proses ulang Data Ranking untuk di-sort (sama kayak di View Blade)
+        $rankingList = [];
+        foreach($hasilTopsis['alternatives'] as $idx => $name) {
+            $rankingList[] = [
+                'name' => $name, 
+                'score' => $hasilTopsis['scores'][$idx],
+            ];
+        }
+        // Urutkan Rank 1 di atas
+        usort($rankingList, fn($a, $b) => $b['score'] <=> $a['score']);
+
+        // D. Setup PDF
+        $pdfData = [
+            'title'        => 'Laporan Prioritas Wilayah Rawan Kriminalitas',
+            'date'         => date('d F Y H:i'),
+            'rankingList'  => $rankingList,
+            'hasilTopsis'  => $hasilTopsis,
+            'dataAgregat'  => $dataAgregat
+        ];
+
+        // E. Generate PDF
+    // Tidak perlu tulisan panjang, cukup 'Pdf::' karena sudah di-use di atas
+        $pdf = Pdf::loadView('admin.prioritas.cetak', $pdfData); 
+        
+        $pdf->setPaper('A4', 'portrait');
+
+        return $pdf->stream('Laporan_Prioritas_TOPSIS.pdf');;
     }
 }
