@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Cache; 
-use Barryvdh\DomPDF\Facade\Pdf; 
+use Illuminate\Support\Facades\Cache;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class PrioritasController extends Controller
 {
@@ -133,8 +133,8 @@ class PrioritasController extends Controller
 
     private function gabungDataPerKecamatan($points)
     {
-        $dataKepadatan = ['Abeli' => 1335, 'Baruga' => 843, 'Kadia' => 4872, 'Kambu' => 1140, 'Kendari Barat' => 1997, 'Mandonga' => 1602, 'Poasia' => 1081, 'Puuwatu' => 1049, 'Ranomeeto' => 1733, 'Wua Wua' => 3174];
-        $skorKejahatan = ['Pembunuhan' => 4, 'Pelecehan Anak' => 4, 'Penganiayaan' => 3, 'Penipuan' => 2, 'Pencurian' => 2];
+        $dataKepadatan = config('kriminal_data.kepadatan_penduduk');
+        $skorKejahatan = config('kriminal_data.skor_kejahatan');
 
         $stats = [];
         foreach ($points as $p) {
@@ -187,7 +187,7 @@ class PrioritasController extends Controller
     {
         // A. Ambil data Hasil Hitungan dari Session
         $hasilTopsis = Session::get('hasil_topsis');
-        
+
         // Cek data kosong
         if (!$hasilTopsis) {
             return redirect()->route('prioritas')->with('error', 'Tidak ada data hitungan untuk dicetak. Silakan hitung dahulu.');
@@ -198,9 +198,9 @@ class PrioritasController extends Controller
 
         // C. Proses ulang Data Ranking untuk di-sort (sama kayak di View Blade)
         $rankingList = [];
-        foreach($hasilTopsis['alternatives'] as $idx => $name) {
+        foreach ($hasilTopsis['alternatives'] as $idx => $name) {
             $rankingList[] = [
-                'name' => $name, 
+                'name' => $name,
                 'score' => $hasilTopsis['scores'][$idx],
             ];
         }
@@ -209,19 +209,20 @@ class PrioritasController extends Controller
 
         // D. Setup PDF
         $pdfData = [
-            'title'        => 'Laporan Prioritas Wilayah Rawan Kriminalitas',
-            'date'         => date('d F Y H:i'),
-            'rankingList'  => $rankingList,
-            'hasilTopsis'  => $hasilTopsis,
-            'dataAgregat'  => $dataAgregat
+            'title' => 'Laporan Prioritas Wilayah Rawan Kriminalitas',
+            'date' => date('d F Y H:i'),
+            'rankingList' => $rankingList,
+            'hasilTopsis' => $hasilTopsis,
+            'dataAgregat' => $dataAgregat
         ];
 
         // E. Generate PDF
-    // Tidak perlu tulisan panjang, cukup 'Pdf::' karena sudah di-use di atas
-        $pdf = Pdf::loadView('admin.prioritas.cetak', $pdfData); 
-        
+        // Tidak perlu tulisan panjang, cukup 'Pdf::' karena sudah di-use di atas
+        $pdf = Pdf::loadView('admin.prioritas.cetak', $pdfData);
+
         $pdf->setPaper('A4', 'portrait');
 
-        return $pdf->stream('Laporan_Prioritas_TOPSIS.pdf');;
+        return $pdf->stream('Laporan_Prioritas_TOPSIS.pdf');
+        ;
     }
 }

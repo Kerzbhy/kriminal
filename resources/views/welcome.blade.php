@@ -146,9 +146,9 @@
               </div>
               <div class="card-footer bg-white text-muted small">
                 <span class="badge bg-danger me-1">Merah = Rawan</span>
-                <span class="badge bg-warning text-dark me-1">Kuning = Sedang</span>
+                <span class="badge bg-warning me-1">Kuning = Sedang</span>
                 <span class="badge bg-success me-1">Hijau = Aman</span>
-                <span class="badge bg-secondary ">Noise = Anomali</span>
+                <span class="badge bg-secondary ">Abu-abu = Noise </span>
               </div>
             </div>
           </div>

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\DataKriminal;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache; // <--- WAJIB IMPORT INI
+use App\Models\Kecamatan;
 
 class MobileController extends Controller
 {
@@ -144,28 +145,30 @@ class MobileController extends Controller
         }
 
         // 1. Cari Index Kecamatan di dalam Array Alternatives
-        // Misal: "Kadia" ada di urutan ke-2 (index 1)
         $index = array_search($kecamatan, $cache['alternatives']);
 
         if ($index === false) {
             return response()->json(['status' => 'error', 'message' => 'Kecamatan tidak ditemukan']);
         }
 
-        // 2. Ambil Data Mentah dari Database (Untuk Info Awal)
-        // Kita butuh ini agar user tau angka awalnya (C1, C2...)
-        // Kita gunakan logika yang sama dengan Agregasi (namun hanya 1 row)
-        // Agar simple, kita query raw database saja untuk info dasar
+        // 2. Ambil Data Mentah dari Database (Untuk Info Awal C1, C2, C3)
         $rawDB = \App\Models\DataKriminal::where('kecamatan', $kecamatan)->get();
 
         $totalKasus = $rawDB->count();
         $totalRugi = $rawDB->sum('kerugian');
         $avgRugi = $totalKasus > 0 ? $totalRugi / $totalKasus : 0;
 
-        // Cari Jenis Dominan
         $listJenis = $rawDB->pluck('jenis_kejahatan')->toArray();
         $counts = array_count_values($listJenis);
         arsort($counts);
         $dominan = array_key_first($counts) ?? '-';
+
+        // === BAGIAN YANG DIPERBAIKI: Ambil Data C4 dari Config ===
+        // Mengambil array kepadatan dari file config/kriminal_data.php
+        $dataKepadatanArray = config('kriminal_data.kepadatan_penduduk');
+        // Mencari nilai untuk kecamatan yang spesifik, beri nilai 0 jika tidak ketemu
+        $kepadatanPenduduk = $dataKepadatanArray[$kecamatan] ?? 0;
+        // =========================================================
 
         // 3. Susun Data Detail dari CACHE TOPSIS (Hasil Python)
         $detail = [
@@ -175,15 +178,16 @@ class MobileController extends Controller
                 'C1 (Kasus)' => $totalKasus,
                 'C2 (Dominan)' => $dominan,
                 'C3 (Rata Rugi)' => round($avgRugi, 0),
-                // C4 Kepadatan kita skip atau hardcode karena di cache python tidak simpan raw
+                // === KUNCI JSON BARU UNTUK C4 DITAMBAHKAN ===
+                'C4 (Kepadatan)' => $kepadatanPenduduk
             ],
-            
-            'normalisasi' => $cache['normalized_matrix'][$index], 
+
+            'normalisasi' => $cache['normalized_matrix'][$index],
             'terbobot' => $cache['weighted_matrix'][$index],
-            
+
             'jarak_positif' => $cache['dist_positive'][$index],
             'jarak_negatif' => $cache['dist_negative'][$index],
-            
+
             'skor_akhir' => $cache['scores'][$index]
         ];
 
