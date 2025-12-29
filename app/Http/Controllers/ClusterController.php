@@ -114,89 +114,89 @@ class ClusterController extends Controller
 
     private function formatHasilFlask($hasilFlask)
     {
-        // === 1. Analisis Skor Keparahan (Untuk Menentukan C1, C2, C3) ===
+        // === 1. Analisis Skor Keparahan (Menentukan Level C1/C2/C3) ===
         $clusterStats = [];
 
         foreach ($hasilFlask as $cluster_id => $items) {
             $cid = (int) $cluster_id;
-
-            // Lewati Noise dulu dalam perhitungan ranking
             if ($cid == -1)
                 continue;
 
-            // Hitung total metrics per cluster
             $count = count($items);
             $totalRugi = 0;
-            foreach ($items as $item) {
-                // Ambil 'rugi' dari data yang dikembalikan Flask
+            foreach ($items as $item)
                 $totalRugi += ($item['rugi'] ?? 0);
-            }
 
-            // Simpan statistik. Score = Kombinasi Jumlah Kejadian + Nominal Rugi
-            // Logika: Cluster dengan kejadian terbanyak & rugi terbesar akan punya score tertinggi.
             $clusterStats[] = [
                 'id' => $cid,
                 'score' => ($count * 1000000000) + $totalRugi
             ];
         }
 
-        // Urutkan dari Score Terendah (Aman) ke Tertinggi (Rawan)
-        usort($clusterStats, function ($a, $b) {
-            return $a['score'] <=> $b['score'];
-        });
+        // Urutkan (Score Rendah -> Tinggi)
+        usort($clusterStats, fn($a, $b) => $a['score'] <=> $b['score']);
 
-        // === 2. Mapping ID Lama -> Level Baru (0, 1, 2) ===
+        // === 2. Mapping ID -> Level (0,1,2) ===
         $mapping = [];
         $totalClusters = count($clusterStats);
 
         if ($totalClusters > 0) {
-            // Bagi rata jumlah cluster menjadi 3 segmen
             $chunkSize = ceil($totalClusters / 3);
-
             foreach ($clusterStats as $index => $stat) {
-                if ($totalClusters <= 3) {
-                    $level = $index; // Jika cuma nemu 1-3 cluster, petakan langsung 1:1
-                } else {
-                    $level = floor($index / $chunkSize); // Jika banyak, bagi rata
+                if ($totalClusters <= 3)
+                    $level = $index;
+                else {
+                    $level = floor($index / $chunkSize);
                     if ($level > 2)
-                        $level = 2; // Pastikan mentok di C3
+                        $level = 2;
                 }
-                $mapping[$stat['id']] = $level; // ID Asli -> 0/1/2
+                $mapping[$stat['id']] = $level;
             }
         }
 
-        // === 3. Proses Data Tabel (Agregat per Kecamatan) ===
-        $agregat = [];
+        // === 3. Proses Data Tabel & Detail (PERBAIKAN UTAMA) ===
+
+        $agregat = []; // [BENAR] Inisialisasi HARUS DI LUAR foreach
         $levelLabels = ['C1 (Aman)', 'C2 (Sedang)', 'C3 (Rawan)'];
 
         foreach ($hasilFlask as $cluster_id => $items) {
             $cid = (int) $cluster_id;
 
-            // Tentukan Level Baru & Label
+            // [SALAH] HAPUS BARIS INI: $agregat = []; 
+            // [SALAH] HAPUS BARIS INI: $levelLabels = [...];
+
+            // Tentukan Level
             if ($cid == -1) {
                 $lvlCode = -1;
                 $labelStr = 'NOISE';
             } else {
-                $lvlCode = $mapping[$cid] ?? 0; // Default C1 jika sisa
-                $labelStr = $levelLabels[$lvlCode] ?? 'C1 (Aman)';
+                $lvlCode = $mapping[$cid] ?? 0;
+                $labelStr = $levelLabels[$lvlCode] ?? 'C1';
             }
 
             foreach ($items as $point) {
                 $kecamatan = $point['kecamatan'] ?? 'Unknown';
-
-                // Buat key unik agar C2 di Kadia & C2 di Baruga tetap terpisah barisnya
-                // atau gunakan key 'Kecamatan_Level' jika ingin menggabung level yang sama per kecamatan
                 $key = $kecamatan . '_lvl_' . $lvlCode;
 
                 if (!isset($agregat[$key])) {
                     $agregat[$key] = [
                         'kecamatan' => $kecamatan,
                         'jumlah_kejadian' => 0,
-                        'cluster_id' => $lvlCode, // -1, 0, 1, 2 (Penting untuk warna Badge di View)
-                        'cluster_label' => $labelStr
+                        'cluster_id' => $lvlCode,
+                        'cluster_label' => $labelStr,
+                        'list_detail' => [] // Siapkan array detail
                     ];
                 }
+
                 $agregat[$key]['jumlah_kejadian']++;
+
+                // Masukkan rincian kejadian
+                $agregat[$key]['list_detail'][] = [
+                    'jenis' => $point['jenis'] ?? '-',
+                    'rugi' => $point['rugi'] ?? 0,
+                    'lat' => $point['lat'],
+                    'lng' => $point['lon']
+                ];
             }
         }
 
@@ -204,35 +204,22 @@ class ClusterController extends Controller
         $tabel = array_values($agregat);
         usort($tabel, fn($a, $b) => strcmp($a['kecamatan'], $b['kecamatan']));
 
-
-        // === 4. Proses Data Visualisasi (Chart & Peta) ===
-        // Di sini kita susun struktur data agar mengandung lat, lng, dan warna fix
-        $chartResult = [];
-
-        // Warna Fix: Noise=Abu, C1=Hijau, C2=Kuning, C3=Merah
-        $colors = [
-            -1 => '#858796',
-            0 => '#1cc88a',
-            1 => '#f6c23e',
-            2 => '#e74a3b'
-        ];
-
-        // Kumpulkan titik berdasarkan Level Baru (Grouping ulang dari hasil DBSCAN)
+        // === 4. Proses Data Visualisasi (Chart) ===
         $groupedPoints = [];
+        $chartResult = [];
+        $colors = [-1 => '#858796', 0 => '#1cc88a', 1 => '#f6c23e', 2 => '#e74a3b'];
 
         foreach ($hasilFlask as $cluster_id => $items) {
             $cid = (int) $cluster_id;
-
-            // Konversi ID DBSCAN -> Level C1/C2/C3
             $lvl = ($cid == -1) ? -1 : ($mapping[$cid] ?? 0);
 
             foreach ($items as $p) {
-                // MASUKKAN DATA LENGKAP DI SINI UNTUK POPUP PETA
+                // Struktur lengkap untuk Chart.js & Map
                 $groupedPoints[$lvl][] = [
-                    'x' => $p['lon'],          // Dibaca ChartJS
-                    'y' => $p['lat'],          // Dibaca ChartJS
-                    'lat' => $p['lat'],        // Dibaca Leaflet Map
-                    'lng' => $p['lon'],        // Dibaca Leaflet Map
+                    'x' => $p['lon'],      // Chart
+                    'y' => $p['lat'],      // Chart
+                    'lat' => $p['lat'],    // Map
+                    'lng' => $p['lon'],    // Map
                     'kecamatan' => $p['kecamatan'] ?? '-',
                     'jenis' => $p['jenis'] ?? '-',
                     'rugi' => $p['rugi'] ?? 0
@@ -240,7 +227,6 @@ class ClusterController extends Controller
             }
         }
 
-        // Bentuk struktur final untuk Javascript
         foreach ($groupedPoints as $lvl => $points) {
             if ($lvl == -1)
                 $lText = 'NOISE';
@@ -252,14 +238,14 @@ class ClusterController extends Controller
                 $lText = 'C3 (Rawan)';
 
             $chartResult[] = [
+                'level' => $lvl,
                 'label' => $lText,
-                'level' => $lvl, // Helper utk logika
-                'data' => $points,
-                'backgroundColor' => $colors[$lvl] ?? '#000000'
+                'backgroundColor' => $colors[$lvl] ?? '#000',
+                'data' => $points
             ];
         }
 
-        // Urutkan dataset chart supaya urutannya rapi (Noise -> C1 -> C2 -> C3)
+        // Urutkan Chart
         usort($chartResult, fn($a, $b) => $a['level'] <=> $b['level']);
 
         return [$tabel, $chartResult];
